@@ -7,9 +7,9 @@
 :- dynamic difficulty/2.
 
 % board(+Size,+Matrix)
-% Board structure
+% Board initial structure
 board(9, [
-    [wgoal, wgoal, wgoal, wgoal],
+    [wgoal, wgoal, wgoal, wgoal, wgoal],
     [empty, black, black, black, black, empty],
     [empty, black, empty, black, empty, black, empty],
     [empty, black, black, black, black, black, black, empty],
@@ -17,7 +17,7 @@ board(9, [
     [empty, white, white, white, white, white, white, empty],
     [empty, white, empty, white, empty, white, empty],
     [empty, white, white, white, white, empty],
-    [bgoal, bgoal, bgoal, bgoal]
+    [bgoal, bgoal, bgoal, bgoal, bgoal]
 ]).
 
 % piece_info(?Type,?Player,+Piece)
