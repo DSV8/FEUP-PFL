@@ -47,6 +47,21 @@ path_obstructedAux(Board,ColI-RowI,ColF-RowF,HorDir-VerDir) :-
     path_obstructedAux(Board,NewCol-NewRow,ColF-RowF,HorDir-VerDir).
     % TODO
 
+% move_direction(+MoveVector,-HorDir,-VerDir) :-
+% Given a move, gives the horizontal and vertical direction with both forming a unit vector
+move_direction(DeltaCol-0,-1, 0) :-         %Left Move
+    DeltaCol < 0, !.
+move_direction(DeltaCol-0,1, 0) :-          %Right Move
+    DeltaCol > 0, !.
+move_direction(DeltaCol-DeltaRow,-1,-1) :-  %Up-Left move
+    (DeltaCol < 0, DeltaRow < 0), !.
+move_direction(0-DeltaRow,0,-1) :-          %Up-Right Move
+    DeltaRow < 0, !.
+move_direction(0-DeltaRow,0,1):-            %Down-Left Move
+    DeltaRow > 0, !.
+move_direction(DeltaCol-DeltaRow,1,1) :-    %Down-Right move
+    (DeltaCol > 0, DeltaRow > 0), !.
+
 % validate_move(+Board,+CoordsOrigin,+CoordsDestination)
 % Checks if the move is valid or not
 validate_move(GameState,ColI-RowI,ColF-RowF) :-
