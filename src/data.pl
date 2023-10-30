@@ -9,15 +9,15 @@
 % board(+Size,+Matrix)
 % Board initial structure
 board(9, [
-    [wgoal, wgoal, wgoal, wgoal, wgoal],
-    [empty, black, black, black, black, empty],
-    [empty, black, empty, black, empty, black, empty],
-    [empty, black, black, black, black, black, black, empty],
+                    [wgoal, wgoal, wgoal, wgoal, wgoal],
+                [empty, black, black, black, black, empty],
+            [empty, black, empty, black, empty, black, empty],
+        [empty, black, black, black, black, black, black, empty],
     [empty, empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, white, white, white, white, white, white, empty],
-    [empty, white, empty, white, empty, white, empty],
-    [empty, white, white, white, white, empty],
-    [bgoal, bgoal, bgoal, bgoal, bgoal]
+        [empty, white, white, white, white, white, white, empty],
+            [empty, white, empty, white, empty, white, empty],
+                [empty, white, white, white, white, empty],
+                    [bgoal, bgoal, bgoal, bgoal, bgoal]
 ]).
 
 % piece_info(?Type,?Player,+Piece)
