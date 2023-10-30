@@ -6,12 +6,14 @@
 % diagonal_move(+PosOrigin,+PosDestination)
 % Checks if the move is diagonal
 diagonal_move(ColI-RowI,ColF-RowF) :-
-    ColDif is ColF-ColI, RowDif is RowF-RowI,
-    abs(ColDif,AbsDif), abs(RowDif,AbsDif).
+    ColDif is ColF-ColI,
+    RowDif is RowF-RowI,
+    abs(ColDif,ColAbsDif),
+    abs(RowDif,RowAbsDif).
 
-% sideways_move(+PosOrigin,+PosDestination)
-% Checks if the move is to the side
-sideways_move(ColI,ColF) :-
+% horizontal_move(+PosOrigin,+PosDestination)
+% Checks if the move is horizontal
+horizontal_move(ColI,ColF) :-
     ColDif is ColF-ColI,
     abs(ColDif, AbsDif).
 
@@ -22,9 +24,13 @@ valid_direction(Black,ColI-RowI,ColF-RowF) :-
 valid_direction(White,ColI-RowI,ColF-RowF) :-
     diagonal_move(ColI-RowI,ColF-RowF).
 valid_direction(Black,ColI,ColF) :-
-    sideways_move(ColI,ColF).
+    horizontal_move(ColI,ColF).
 valid_direction(White,ColI,ColF) :-
-    sideways_move(ColI,ColF).
+    horizontal_move(ColI,ColF).
+
+% validate_move(+Board,+CoordsOrigin,+CoordsDestination)
+% Checks if the move is valid or not
+validate_move() :- . % TODO
 
 % show_winner(+GameState, +Winner)
 % Prints the winner of the game and number of moves they made
