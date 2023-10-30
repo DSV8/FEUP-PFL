@@ -28,9 +28,36 @@ valid_direction(Black,ColI,ColF) :-
 valid_direction(White,ColI,ColF) :-
     horizontal_move(ColI,ColF).
 
+% path_obstructed(+Board,+PosOrigin,+PosDestination)
+% Checks if there is a piece in the destination position of the move ---> (WHAT IT SHOULD DO)
+% Checks if there is a piece between the two positions of the move ---> (WHAT IT DOES)
+path_obstructed(Board, ColI-RowI,ColF-RowF) :-
+    DeltaCol is ColF-ColI, DeltaRow is RowF-RowI,
+    move_direction(DeltaCol-DeltaRow,HorDir,VerDir),
+    \+path_obstructedAux(Board, ColI-RowI,ColF-RowF,HorDir-VerDir).
+    % TODO
+
+% path_obstructedAux(+Board,+PosOrigin,+PosDestination,+Direction)
+% Auxiliary function of path_obstructed.
+path_obstructedAux(_,Col-Row,Col-Row,_) :- !.
+path_obstructedAux(Board,ColI-RowI,ColF-RowF,HorDir-VerDir) :-
+    NewCol is ColI + HorDir, NewRow is RowI + VerDir,
+    position(Board,NewCol-NewRow,Piece),
+    piece_info(Piece, neutral), !,
+    path_obstructedAux(Board,NewCol-NewRow,ColF-RowF,HorDir-VerDir).
+    % TODO
+
 % validate_move(+Board,+CoordsOrigin,+CoordsDestination)
 % Checks if the move is valid or not
-validate_move() :- . % TODO
+validate_move(GameState,ColI-RowI,ColF-RowF) :-
+    [Board,Player,FearList,_] = GameState,
+    in_bounds(Board,ColI-RowI), in_bounds(Board,ColF-RowF),
+    position(Board, ColI-RowI,PieceI), position(Board, ColF-RowF, PieceF),
+    \+(piece_info(PieceI, neutral)), piece_info(PieceF, neutral),
+    piece_info(PieceType,Player,PieceI),
+    valid_direction(PieceType,ColI-RowI,ColF-RowF),
+    \+path_obstructed(Board,ColI-RowI,ColF-RowF).
+    % TODO
 
 % show_winner(+GameState, +Winner)
 % Prints the winner of the game and number of moves they made

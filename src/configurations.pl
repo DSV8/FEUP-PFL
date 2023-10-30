@@ -13,20 +13,21 @@ choose_difficulty(Bot) :-
     get_option(1, 2, 'Difficulty', Option), !,
     asserta((difficulty(Bot, Option))).
 
-% option(+N)
+% menu_option(+N)
 % Main menu options. Each represents a game mode.
-option(1):-
+menu_option(1):-
     write('Human vs. Human\n'),
-    get_name(player1), get_name(player2).
-option(2):-
+    get_name(player1),
+    get_name(player2).
+menu_option(2):-
     write('Human vs. Bot\n'),
     get_name(player1),
-    asserta((name_of(player2, 'bot'))), !, 
+    asserta((name_of(player2, 'Bot'))), !, 
     choose_difficulty(player2).
-option(3):-
+menu_option(3):-
     write('Bot vs. Bot\n'),
-    asserta((name_of(player1, 'bot1'))),
-    asserta((name_of(player2, 'bot2'))), !,
+    asserta((name_of(player1, 'Bot1'))),
+    asserta((name_of(player2, 'Bot2'))), !,
     choose_difficulty(player1),
     choose_difficulty(player2).
 
@@ -62,7 +63,7 @@ menu:-
 set_mode :-
     menu,
     get_option(1, 3, 'Mode', Option), !,
-    option(Option).
+    menu_option(Option).
 
 % configuration(-GameState)
 % Initialize GameState with Board and first Player
