@@ -20,30 +20,37 @@ position(Board, Col-Row, Piece) :-
     nth1(Col, Line, Piece),
     Piece \= empty, Piece \= wgoal, Piece \= bgoal, !.
 
+% columnInRow(+Board, +Row, -NOfCol)
+% Associates number of Columns to a Row
+columnsInRow(Board, Row) :-
+    nth1(Row, Board, RowList),
+    length(RowList, NOfCol).
+
 % in_bounds(+Board,+Coordinate)
 % Checks if calculated coordinate is inside Board
-in_bounds(Board, Col-Row) :-
+in_bounds(Board, Col-Row) :- 
     length(Board, Size),
-    between(1, Size, Col),
-    between(1, Size, Row).
+    between(1, Size, Row),
+    columnInRow(Board, Row),
+    between(1, NOfCol, Col).
 
-% get_symbol(+Board,+Line,+Col,-Symbol)
+% get_symbol(+Board,+Row,+Col,-Symbol)
 % Unites Symbol with the part symbol in the Col-Line coordinate of Board
-get_symbol(Board, Line, Col, Symbol):-
-    position(Board,Col-Line,Piece),
+get_symbol(Board, Row, Col, Symbol):-
+    position(Board,Col-Row,Piece),
     symbol(Piece, Symbol).
 
-% display_pieces(+Board,+Line,+Col,+Size)
+% display_pieces(+Board,+Row,+Col,+Size)
 % Displays the Board piece in Line-Col coordinates
 display_pieces(_, _, Col, Size):- 
     Col > Size, write('\n  '), !.
-display_pieces(Board, Line, Col, Size):-
-    get_symbol(Board, Line, Col, Symbol),
+display_pieces(Board, Row, Col, Size):-
+    get_symbol(Board, Row, Col, Symbol),
     format(' ~a |', [Symbol]),
     NextCol is Col + 1,
-    display_pieces(Board, Line, NextCol, Size).
+    display_pieces(Board, Row, NextCol, Size).
 
 % init_state(+Size,-Board)
-% Unifies Board with a Size matrix that represents the game: animals and empty pieces
+% Unifies Board with a Size matrix that represents the game:
 init_state(Size, Board):-
-    board(Size, Board).
+    print_board.
