@@ -6,7 +6,7 @@ clear_console:-
     write('\33\[2J').
 
 % get_line(-Result,+Acc)
-% Unifies Result with an input line up to endline '\n'
+% Stores in Result an input line up to endline '\n'
 get_line(Result, Acc):-
     get_char(Char),
     Char \= '\n',
@@ -16,12 +16,12 @@ get_line(Result, Acc):-
     atom_chars(Result, Acc).
 
 % abs(+Number,-AbsNumber)
-% Unifies AbsNumber with the absolute value of Number
+% Stores in AbsNumber the absolute value of Number
 abs(X,X) :- X >= 0, !.
 abs(X,Y) :- Y is -X.
 
 % get_username(+Player)
-% Asks player username. Dynamically adds the name_of/2 fact to the base fact
+% Asks player username. Dynamically associate the username to the player.
 get_username(Player):-
     format('~a, please type your username? ', [Player]),
     get_line(Name, []),
@@ -47,7 +47,7 @@ get_option(Min,Max,Context,Value):-
     between(Min, Max, Value), !.
 
 % get_move(+Board,-Coordinate)
-% Unifies Coordinate with a valid coordinate given by input within the Board
+% Stores in Coordinate a valid coordinate given by input, within the Board
 get_move(Board, Col1-Row1-Col2-Row2):-
     length(Board, Size),
     get_option(1, Size, 'Origin column', Col1),
@@ -56,7 +56,7 @@ get_move(Board, Col1-Row1-Col2-Row2):-
     get_option(1, Size, 'Destination row', Row2).
 
 % replace(+Index,+Element,+List,-Result)
-% Unifies Result with the list resulting from replace the element at Index of List by Element
+% Stores in Result the list resulting from replacing the element at certain Index of List by Element
 replace(Index, Element, List, Result) :-
   nth0(Index, List, _, R),
   nth0(Index, Result, Element, R).
