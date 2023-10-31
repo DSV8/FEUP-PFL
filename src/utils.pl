@@ -1,5 +1,12 @@
 :- use_module(library(between)).
 
+% clear_buffer/0
+% Clears input buffer
+clear_buffer:-
+    repeat,
+    get_char(C),
+    C = '\n'.
+
 % clear_console/0
 % Clears console
 clear_console:- 
