@@ -53,13 +53,21 @@ get_option(Min,Max,Context,Value):-
     read_number(Value),
     between(Min, Max, Value), !.
 
+% columnInRow(+Board, +Row, -NOfCol)
+% Associates number of Columns to a Row
+columnsInRow(Board, Row, NofCol) :-
+    nth1(Row, Board, RowList),
+    length(RowList, NOfCol).
+
 % get_move(+Board,-Coordinate)
 % Stores in Coordinate a valid coordinate given by input, within the Board
 get_move(Board, Col1-Row1-Col2-Row2):-
     length(Board, Size),
-    get_option(1, Size, 'Origin column', Col1),
+    columnsInRow(Board, Row1, NofCol),
+    get_option(1, NofCol, 'Origin column', Col1),
     get_option(1, Size, 'Origin row', Row1),
-    get_option(1, Size, 'Destination column', Col2),
+    columnsInRow(Board, Row2, NofCol),
+    get_option(1, NofCol, 'Destination column', Col2),
     get_option(1, Size, 'Destination row', Row2).
 
 % replace(+Index,+Element,+List,-Result)

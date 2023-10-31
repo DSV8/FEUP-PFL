@@ -20,7 +20,7 @@ board(9, [
                     [wgoal, wgoal, wgoal, wgoal, wgoal]
 ]).
 
-% piece_info(?Type,?Player,+Piece)
+% piece_info(-Type, +Player, +Piece)
 % It allows to generalize the type of piece and to know the player that uses it
 piece_info(white, player1, white).
 piece_info(black, player2, black).

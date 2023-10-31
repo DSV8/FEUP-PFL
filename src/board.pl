@@ -20,18 +20,12 @@ position(Board, Col-Row, Piece) :-
     nth1(Col, Line, Piece),
     Piece \= empty, Piece \= wgoal, Piece \= bgoal, !.
 
-% columnInRow(+Board, +Row, -NOfCol)
-% Associates number of Columns to a Row
-columnsInRow(Board, Row) :-
-    nth1(Row, Board, RowList),
-    length(RowList, NOfCol).
-
 % in_bounds(+Board,+Coordinate)
 % Checks if calculated coordinate is inside Board
 in_bounds(Board, Col-Row) :- 
     length(Board, Size),
     between(1, Size, Row),
-    columnInRow(Board, Row),
+    columnsInRow(Board, Row),
     between(1, NOfCol, Col).
 
 % get_symbol(+Board,+Row,+Col,-Symbol)
