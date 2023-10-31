@@ -70,6 +70,13 @@ get_move(Board, Col1-Row1-Col2-Row2):-
     get_option(1, NofCol, 'Destination column', Col2),
     get_option(1, Size, 'Destination row', Row2).
 
+% list_length(+List, -Length)
+% Stores the length of the list in Length
+list_length([], 0).
+list_length([_ | Tail], Length) :-
+    list_length(Tail, TailLength),
+    Length is TailLength + 1.
+
 % replace(+Index,+Element,+List,-Result)
 % Stores in Result the list resulting from replacing the element at certain Index of List by Element
 replace(Index, Element, List, Result) :-
