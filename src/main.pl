@@ -39,12 +39,12 @@ count_pieces_on_row(PieceType, [_ | Rest], Count) :-
 
 % position_diagonal(+Board, +PosCoordinates, -DiagonalList)
 % Gets the diagonal of the given position
-position_diagonal(Board, Col-Row, DiagonalList) :-
+/*position_diagonal(Board, Col-Row, DiagonalList) :-
     length(Board, Size),
     MaxIndex is Size - 1,
     MaxIndex =:= Col,
     MaxIndex =:= Row,
-    get_diagonal(Board, Col-Row, DiagonalList).
+    get_diagonal(Board, Col-Row, DiagonalList).*/
 
 % validate_move(+Board, +CoordsOrigin, +CoordsDestination)
 % Checks if the move is valid or not
@@ -63,7 +63,7 @@ validate_move(GameState,ColI-RowI,ColF-RowF) :-
     \+(piece_info(PieceI, neutral)), piece_info(PieceF, neutral),
     piece_info(PieceType,Player,PieceI),
     horizontal_move(ColI, ColF, NofMoves),
-
+    %TODO
     path_empty(Board, ColF-RowF).
 
 
