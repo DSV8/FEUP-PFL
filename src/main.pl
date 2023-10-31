@@ -5,16 +5,24 @@
 
 % diagonal_move(+PosOrigin,+PosDestination, -NofMoves)
 % Checks if the move is diagonal
-diagonal_move(ColI-RowI,ColF-RowF, ColDif) :-
+diagonal_move(ColI-RowI,ColF-RowF, ColDif-RowDif) :-
+    ColI =:= ColF,                                  % diagonal II/IV Quadrant
     ColDif is abs(ColF - ColI),
+    RowI =/= RowF,
+    RowDif is abs(RowF - RowI).
+diagonal_move(ColI-RowI,ColF-RowF, ColDif-RowDif) :-
+    ColI =/= ColF,                                  % diagonal I/III Quadrant
+    ColDif is abs(ColF - ColI),
+    RowI =/= RowF,
     RowDif is abs(RowF - RowI),
     ColDif =:= RowDif.
 
 % horizontal_move(+PosOrigin, +PosDestination, -NOfMoves)
 % Checks if the move is horizontal
-horizontal_move(ColI, ColF, ColDif) :-
+horizontal_move(ColI-RowI, ColF-RowF, ColDif) :-
+    RowI =:= RowF,
     ColI =\= ColF,
-    ColDif is abs(ColF - ColI).
+    ColDif is abs(ColF - ColI),
 
 % path_empty(+Board, +PosDestination)
 % Checks if there the destination position of the move is empty

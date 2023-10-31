@@ -9,15 +9,15 @@
 % board(+Size,+Matrix)
 % Board initial structure
 board(9, [
-                    [bgoal, bgoal, bgoal, bgoal, bgoal],
-                [empty, white, white, white, white, empty],
-            [empty, white, empty, white, empty, white, empty],
-        [empty, white, white, white, white, white, white, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty, empty],
-        [empty, black, black, black, black, black, black, empty],
-            [empty, black, empty, black, empty, black, empty],
-                [empty, black, black, black, black, empty],
-                    [wgoal, wgoal, wgoal, wgoal, wgoal]
+[unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
+[unused, unused, unused, empty, black, black, black, black, empty],
+[unused, unused, empty, black, empty, black, empty, black, empty],
+[unused, empty, black, black, black, black, black, black, empty],
+[empty, empty, empty, empty, empty, empty, empty, empty, empty],
+[empty, white, white, white, white, white, white, empty, unused],
+[empty, white, empty, white, empty, white, empty, unused, unused],
+[empty, white, white, white, white, empty, unused, unused, unused],
+[bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]
 ]).
 
 % piece_info(?Type, ?Player, +Piece)
@@ -27,6 +27,7 @@ piece_info(black, player2, black).
 piece_info(empty, neutral).
 piece_info(wgoal, neutral).
 piece_info(bgoal, neutral).
+piece_info(unused, neutral).
 
 % change_turn(+CurrentPlayer,-NextPlayer)
 % Change player turn
