@@ -44,7 +44,9 @@ symbol(wgoal, 'w') :- !.
 % print_cell(+Piece)
 % Predicate to print a single cell
 print_cell(Cell) :-
-    write(Cell).
+    write('['),
+    write(Cell),
+    write(']').
 
 % display_dash(+List)
 % Predicate to print a dash if there are still members in the list.
@@ -66,6 +68,7 @@ print_board :-
     board(9, Board),
     print_board(Board, 1, 9).
 
+/*
 % print_bar1(+RowNumber)
 % prints the first bar from row 2 to 8
 print_bar1(N) :-
@@ -77,6 +80,7 @@ print_bar1(N) :-
 print_bar2(N) :-
     between(2, 8, N),
     write(' |').
+*/
 
 % print_board(+Row, +NOfRow, +Size)
 % Predicate to print the entire hexagonal board
@@ -102,25 +106,25 @@ print_spaces(N) :-
  *
  *  Board structure
  *
- *  I --------------   w — w — w — w — w
+ *  I --------------   [w] — [w] — [w] — [w] — [w]
  *                    
- *  H ------------ |   — B — B — B — B —   | 
+ *  H ------------ [ ] — [B] — [B] — [B] — [B] — [ ] 
  *                                                            
- *  G ---------- |   — B —   — B —   — B —   |
+ *  G ---------- [ ] — [B] — [ ] — [B] — [ ] — [B] — [ ]
  *                                                  
- *  F -------- |   — B — B — B — B — B — B —   |
+ *  F -------- [ ] — [B] — [B] — [B] — [B] — [B] — [B] — [ ]
  *                                                        
- *  E ------  |   —   —   —   —   —   —   —   —   |
+ *  E ------  [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ]
  *                                                     
- *  D -------- |   — W — W — W — W — W — W —   | \
- *                                                \
- *  C ---------- |   — W —   — W —   — W —   | \   \
- *                                              \   \ 
- *  B ------------ |   — W — W — W — W —   | \   \   \
- *                                            \   \   \
- *  A --------------   b — b — b — b — b   \   \   \   \
- *                                          \   \   \   \
- *                       \   \   \   \   \   \   \   \   \
- *                        \   \   \   \   \   \   \   \   \
- *                         1   2   3   4   5   6   7   8   9                  
+ *  D -------- [ ] — [W] — [W] — [W] — [W] — [W] — [W] — [ ]      \
+ *                                                                 \
+ *  C ---------- [ ] — [W] — [ ] — [W] — [ ] — [W] — [ ]      \     \
+ *                                                             \     \ 
+ *  B ------------ [ ] — [W] — [W] — [W] — [W] — [ ]      \     \     \
+ *                                                         \     \     \
+ *  A --------------   [b] — [b] — [b] — [b] — [b]    \     \     \     \
+ *                                                     \     \     \     \
+ *                        \     \     \     \     \     \     \     \     \
+ *                         \     \     \     \     \     \     \     \     \
+ *                          1     2     3     4     5     6     7     8     9                  
 **/
