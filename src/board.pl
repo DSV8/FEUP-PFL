@@ -11,22 +11,22 @@ put_piece(Board, Col-Row, Piece, NewBoard) :-
     replace(RowIndex, NewLine, Board, NewBoard).
 
 % position(+Board,+Coordinate,-Piece)
-% Unites Piece with the piece on the board at those coordinates
+% Gives the piece on that coordinate in the board
 position(Board, Col-Row, Piece) :- 
-    nth1(Row, Board, Line),
-    nth1(Col, Line, Piece), !.
+    Row =< 4,
+    nth0(Row, Board, Line),
+    Col1 is Row+4-2*Row,
+    nth0(Col1, Line, Piece), !.
 position(Board, Col-Row, Piece) :- 
-    nth1(Row, Board, Line),
-    nth1(Col, Line, Piece),
-    Piece \= empty, Piece \= wgoal, Piece \= bgoal, !.
+    Row >= 5,
+    nth0(Row, Board, Line),
+    Col1 is 12-Row,
+    nth0(Col1, Line, Piece), !.
 
-% in_bounds(+Board,+Coordinate)
-% Checks if calculated coordinate is inside Board
-in_bounds(Board, Col-Row) :- 
-    length(Board, Size),
-    between(1, Size, Row),
-    columnsInRow(Board, Row),
-    between(1, NOfCol, Col).
+% valid_position(+Row-Col)
+% Checks if the position is valid within our matrix
+valid_position(Row-Col) :- between(0, 4, Row), R is Row+4-2*Row, between(R, 8, Col), !.
+valid_position(Row-Col) :- between(5, 8, Row), R is 12-Row, between(0, R, Col), !.
 
 % get_symbol(+Board,+Row,+Col,-Symbol)
 % Unites Symbol with the part symbol in the Col-Line coordinate of Board

@@ -27,7 +27,7 @@ piece_info(black, player2, black).
 piece_info(empty, neutral).
 piece_info(wgoal, neutral).
 piece_info(bgoal, neutral).
-piece_info(unused, neutral).
+piece_info(unused, unused).
 
 % change_turn(+CurrentPlayer,-NextPlayer)
 % Change player turn
@@ -46,12 +46,13 @@ symbol(unused, '') :- !.
 % print_cell(+Piece)
 % Predicate to print a single cell
 print_cell(Cell) :-
-    (   Cell \= unused
+    (   
+        Cell \= unused
     ->  symbol(Cell, Symbol),
         write('['),
         write(Symbol),
         write(']')
-    ; true                   % Do nothing
+    ; true % Do nothing
     ).
 
 % display_dash(+List)
@@ -62,7 +63,7 @@ display_dash([]).
 
 % print_row(+Row)
 % Predicate to print a row of cells
-print_row([]) :- nl.
+print_row([]) :- nl, nl.
 print_row([Cell | Rest]) :-
     print_cell(Cell),
     display_dash(Rest),
@@ -72,22 +73,23 @@ print_row([Cell | Rest]) :-
 % Predicate to print the entire hexagonal board
 print_board :-
     board(9, Board),
-    print_board(Board, 1, 9).
+    print_board_aux(Board, 0).
 
-% print_board(+Row, +NOfRow, +Size)
+% print_board_aux(+Board, +NOfRow)
 % Predicate to print the entire hexagonal board
-print_board([], _).
-print_board([Row | Rest], N, Size) :-
+print_board_aux([], _).
+print_board_aux([Row | Rest], N) :-
     (   N =:= 0;
-        N =:= 9
+        N =:= 8
     ->  SpaceCount is 4
-    ;   N =:= 1; N =:= 8
+    ;   N =:= 1; 
+        N =:= 7
     ->  SpaceCount is 3
     ;   N =:= 2;
-        N =:= 7
+        N =:= 6
     ->  SpaceCount is 2
     ;   N =:= 3;
-        N =:= 6
+        N =:= 5
     ->  SpaceCount is 1
     ;   SpaceCount is 0
     ),
@@ -108,16 +110,16 @@ print_spaces(N) :-
  *
  *  Board structure
  *
- *  I --------------     [w] — [w] — [w] — [w] — [w]
- *                    
- *  H ------------    [ ] — [B] — [B] — [B] — [B] — [ ] 
+ *  I --------------     [w] — [w] — [w] — [w] — [w]             
+ *                                                              
+ *  H ------------    [ ] — [B] — [B] — [B] — [B] — [ ]      
  *                                                            
- *  G ----------   [ ] — [B] — [ ] — [B] — [ ] — [B] — [ ]
- *                                                  
- *  F --------  [ ] — [B] — [B] — [B] — [B] — [B] — [B] — [ ]
- *                                                        
+ *  G ----------   [ ] — [B] — [ ] — [B] — [ ] — [B] — [ ]   
+ *                                                              
+ *  F --------  [ ] — [B] — [B] — [B] — [B] — [B] — [B] — [ ] 
+ *                                                              
  *  E ------ [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ]
- *                                                     
+ *                                                                
  *  D --------  [ ] — [W] — [W] — [W] — [W] — [W] — [W] — [ ]     \
  *                                                                 \
  *  C ----------   [ ] — [W] — [ ] — [W] — [ ] — [W] — [ ]     \    \
