@@ -74,29 +74,10 @@ print_board :-
     board(9, Board),
     print_board(Board, 1, 9).
 
-/*
-% print_bar1(+RowNumber)
-% prints the first bar from row 2 to 8
-print_bar1(N) :-
-    between(2, 8, N),
-    write('| ').
-
-% printb_bar2(+RowNumber)
-% prints the second bar from row 2 to 8
-print_bar2(N) :-
-    between(2, 8, N),
-    write(' |').
-*/
-
 % print_board(+Row, +NOfRow, +Size)
 % Predicate to print the entire hexagonal board
 print_board([], _).
 print_board([Row | Rest], N, Size) :-
-    /* Para ficar alinhado: 1ª e 9ª linha -> 4 espaços no início
-     *                      2ª e 8ª linha -> 3 espaços no início
-     *                      3ª e 7ª linha -> 2 espaços no início
-     *                      4ª e 6ª linha -> 1 espaço no início                   
-     */
     (   N =:= 0;
         N =:= 9
     ->  SpaceCount is 4
@@ -110,12 +91,9 @@ print_board([Row | Rest], N, Size) :-
     ->  SpaceCount is 1
     ;   SpaceCount is 0
     ),
-    /*SpaceCount is abs(Size - N),*/
     NextN is N + 1,
-    /*print_bar1(N),*/
     print_spaces(SpaceCount),
     print_row(Row),
-    /*print_bar2(N),*/
     print_board(Rest, NextN).
 
 % Predicate to print spaces before a row of cells
