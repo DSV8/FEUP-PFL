@@ -63,10 +63,10 @@ steps_in_row(Board, black, RowI, Count) :-
     Count is Count1 - Count2,
     Count > 0.
 
-% traverse_diagonal(+Board, +Row-Col, +VerDir, +HorDir, -List)
+% traverse_diagonal(+Board, +Row-Col, +Dir, -List)
 % Helper predicate to traverse the diagonal and collect values.
-traverse_diagonal(_, 0-_, []). % We've reached the end of the diagonal.
-traverse_diagonal(_, _-0, []). % We've reached the end of the diagonal.
+traverse_diagonal(_, 0-_, _, []). % We've reached the end of the diagonal.
+traverse_diagonal(_, _-0, _, []). % We've reached the end of the diagonal.
 traverse_diagonal(Board, Row-Col, 0, [Value | Rest]) :- %0 means we're going Up-Left or Down-Right
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
@@ -76,7 +76,7 @@ traverse_diagonal(Board, Row-Col, 0, [Value | Rest]) :- %0 means we're going Up-
     NextRow2 is Row + 1,
     (traverse_diagonal(Board, NextRow1-Col, 0, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-Col, 0, PartialDiagonal2)),
-    append(PartialDiagonal1, [Value | PartialDiagonal2], Diagonal).
+    append(PartialDiagonal1, [Value | PartialDiagonal2], Rest).
 traverse_diagonal(Board, Row-Col, 1, [Value | Rest]) :- %1 means we're going Up-Right or Down-Left
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
@@ -88,30 +88,34 @@ traverse_diagonal(Board, Row-Col, 1, [Value | Rest]) :- %1 means we're going Up-
     NextCol2 is Col - 1,
     (traverse_diagonal(Board, NextRow1-NextCol1, 1, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-NextCol2, 1, PartialDiagonal2)),
-    append(PartialDiagonal1, [Value | PartialDiagonal2], Diagonal).
+    append(PartialDiagonal1, [Value | PartialDiagonal2], Rest).
 
 % steps_in_diagonal(+Board, +PieceType, +RowI, +Dir, -Count)
 % Counts the number of steps the given piece can make in the given diagonal
 steps_in_diagonal(Board, white, RowI-ColI, 0, Count) :-
-    traverse_diagonal(Board, RowI-ColI, 0, List),
+    traverse_diagonal(Board, RowI-ColI, 0, List1),
+    remove_duplicates(List, List1),
     count_pieces_on_row(white, List, Count1),
     count_pieces_on_row(black, List, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, black, RowI-ColI, 0, Count) :-
-    traverse_diagonal(Board, RowI-ColI, 0, List),
+    traverse_diagonal(Board, RowI-ColI, 0, List1),
+    remove_duplicates(List, List1),
     count_pieces_on_row(black, 0, Count1),
     count_pieces_on_diagonal(white, 0, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, white, RowI-ColI, 1, Count) :-
-    traverse_diagonal(Board, RowI-ColI, 1, List),
+    traverse_diagonal(Board, RowI-ColI, 1, List1),
+    remove_duplicates(List, List1),
     count_pieces_on_row(white, 1, Count1),
     count_pieces_on_diagonal(black, 1, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, black, RowI-ColI, 1, Count) :-
-    traverse_diagonal(Board, RowI-ColI, 1, List),
+    traverse_diagonal(Board, RowI-ColI, 1, List1),
+    remove_duplicates(List, List1),
     count_pieces_on_row(black, 1, Count1),
     count_pieces_on_diagonal(white, 1, Count2),
     Count is Count1 - Count2,
