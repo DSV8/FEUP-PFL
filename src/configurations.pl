@@ -44,7 +44,7 @@ choose_player(Player):-
 % Game header display
 game_header:-
     write('+---------------------------+\n'),
-    write('|          Differo          |\n'),
+    write('|          DIFFERO          |\n'),
     write('+---------------------------+\n').
 
 % menu/0
