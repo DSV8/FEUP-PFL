@@ -41,13 +41,18 @@ symbol(white, 'W') :- !.
 symbol(empty, ' ') :- !.
 symbol(bgoal, 'b') :- !.
 symbol(wgoal, 'w') :- !.
+symbol(unused, '') :- !.
 
 % print_cell(+Piece)
 % Predicate to print a single cell
 print_cell(Cell) :-
-    write('['),
-    write(Cell),
-    write(']').
+    (   Cell \= unused
+    ->  symbol(Cell, Symbol),
+        write('['),
+        write(Symbol),
+        write(']')
+    ; true                   % Do nothing
+    ).
 
 % display_dash(+List)
 % Predicate to print a dash if there are still members in the list.
@@ -87,12 +92,30 @@ print_bar2(N) :-
 % Predicate to print the entire hexagonal board
 print_board([], _).
 print_board([Row | Rest], N, Size) :-
-    SpaceCount is abs(Size - N),
+    /* Para ficar alinhado: 1ª e 9ª linha -> 4 espaços no início
+     *                      2ª e 8ª linha -> 3 espaços no início
+     *                      3ª e 7ª linha -> 2 espaços no início
+     *                      4ª e 6ª linha -> 1 espaço no início                   
+     */
+    (   N =:= 0;
+        N =:= 9
+    ->  SpaceCount is 4
+    ;   N =:= 1; N =:= 8
+    ->  SpaceCount is 3
+    ;   N =:= 2;
+        N =:= 7
+    ->  SpaceCount is 2
+    ;   N =:= 3;
+        N =:= 6
+    ->  SpaceCount is 1
+    ;   SpaceCount is 0
+    ),
+    /*SpaceCount is abs(Size - N),*/
     NextN is N + 1,
-    print_bar1(N),
+    /*print_bar1(N),*/
     print_spaces(SpaceCount),
     print_row(Row),
-    print_bar2(N),
+    /*print_bar2(N),*/
     print_board(Rest, NextN).
 
 % Predicate to print spaces before a row of cells
@@ -107,25 +130,25 @@ print_spaces(N) :-
  *
  *  Board structure
  *
- *  I --------------   [w] — [w] — [w] — [w] — [w]
+ *  I --------------     [w] — [w] — [w] — [w] — [w]
  *                    
- *  H ------------ [ ] — [B] — [B] — [B] — [B] — [ ] 
+ *  H ------------    [ ] — [B] — [B] — [B] — [B] — [ ] 
  *                                                            
- *  G ---------- [ ] — [B] — [ ] — [B] — [ ] — [B] — [ ]
+ *  G ----------   [ ] — [B] — [ ] — [B] — [ ] — [B] — [ ]
  *                                                  
- *  F -------- [ ] — [B] — [B] — [B] — [B] — [B] — [B] — [ ]
+ *  F --------  [ ] — [B] — [B] — [B] — [B] — [B] — [B] — [ ]
  *                                                        
- *  E ------  [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ]
+ *  E ------ [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ]
  *                                                     
- *  D -------- [ ] — [W] — [W] — [W] — [W] — [W] — [W] — [ ]      \
+ *  D --------  [ ] — [W] — [W] — [W] — [W] — [W] — [W] — [ ]     \
  *                                                                 \
- *  C ---------- [ ] — [W] — [ ] — [W] — [ ] — [W] — [ ]      \     \
- *                                                             \     \ 
- *  B ------------ [ ] — [W] — [W] — [W] — [W] — [ ]      \     \     \
- *                                                         \     \     \
- *  A --------------   [b] — [b] — [b] — [b] — [b]    \     \     \     \
- *                                                     \     \     \     \
- *                        \     \     \     \     \     \     \     \     \
- *                         \     \     \     \     \     \     \     \     \
- *                          1     2     3     4     5     6     7     8     9                  
+ *  C ----------   [ ] — [W] — [ ] — [W] — [ ] — [W] — [ ]     \    \
+ *                                                              \    \ 
+ *  B ------------    [ ] — [W] — [W] — [W] — [W] — [ ]    \     \    \
+ *                                                          \     \    \
+ *  A --------------     [b] — [b] — [b] — [b] — [b]    \    \     \    \
+ *                                                       \    \     \    \
+ *                          \     \     \     \     \     \    \     \    \
+ *                           \     \     \     \     \     \    \     \    \
+ *                            1     2     3     4     5     6    7     8    9                  
 **/
