@@ -56,13 +56,18 @@ get_option(Min,Max,Context,Value):-
 % get_move(+Board,-Coordinate)
 % Stores in Coordinate a valid coordinate given by input, within the Board
 get_move(Board, Col1-Row1-Col2-Row2):-
-    length(Board, Size),
-    columnsInRow(Board, Row1, NofCol),
-    get_option(1, NofCol, 'Origin column', Col1),
     get_option(1, Size, 'Origin row', Row1),
-    columnsInRow(Board, Row2, NofCol),
-    get_option(1, NofCol, 'Destination column', Col2),
-    get_option(1, Size, 'Destination row', Row2).
+    (   (Row1 >= 1, Row1 =< 5)
+    ->  NofCol1 is Row1 + 4 - 2 * Row1
+    ;   NofCol1 is 12 - Row1
+    ),
+    get_option(1, NofCol1, 'Origin column', Col1),
+    get_option(1, Size, 'Destination row', Row2),
+    (   (Row2 >= 1, Row2 =< 5)
+    ->  NofCol2 is Row2 + 4 - 2 * Row2
+    ;   NofCol2 is 12 - Row2
+    ),
+    get_option(1, NofCol2, 'Destination column', Col2).
 
 % list_length(+List, -Length)
 % Stores the length of the list in Length

@@ -79,17 +79,13 @@ print_board :-
 % Predicate to print the entire hexagonal board
 print_board_aux([], _).
 print_board_aux([Row | Rest], N) :-
-    (   N =:= 0;
-        N =:= 8
+    (   (N =:= 0; N =:= 8)
     ->  SpaceCount is 4
-    ;   N =:= 1; 
-        N =:= 7
+    ;   (N =:= 1; N =:= 7)
     ->  SpaceCount is 3
-    ;   N =:= 2;
-        N =:= 6
+    ;   (N =:= 2; N =:= 6)
     ->  SpaceCount is 2
-    ;   N =:= 3;
-        N =:= 5
+    ;   (N =:= 3; N =:= 5)
     ->  SpaceCount is 1
     ;   SpaceCount is 0
     ),

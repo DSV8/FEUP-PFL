@@ -67,7 +67,7 @@ steps_in_row(Board, black, RowI, Count) :-
 % Helper predicate to traverse the diagonal and collect values.
 traverse_diagonal(_, 0-_, _, []). % We've reached the end of the diagonal.
 traverse_diagonal(_, _-0, _, []). % We've reached the end of the diagonal.
-traverse_diagonal(Board, Row-Col, 0, [Value | Rest]) :- %0 means we're going Up-Left or Down-Right
+traverse_diagonal(Board, Row-Col, 0, [Value-Row-Col | Rest]) :- %0 means we're going Up-Left or Down-Right
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
     Value =\= wgoal,
@@ -76,19 +76,17 @@ traverse_diagonal(Board, Row-Col, 0, [Value | Rest]) :- %0 means we're going Up-
     NextRow2 is Row + 1,
     (traverse_diagonal(Board, NextRow1-Col, 0, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-Col, 0, PartialDiagonal2)),
-    append(PartialDiagonal1, [Value | PartialDiagonal2], Rest).
-traverse_diagonal(Board, Row-Col, 1, [Value | Rest]) :- %1 means we're going Up-Right or Down-Left
+    append(PartialDiagonal1, [Value-Row-Col | PartialDiagonal2], Rest).
+traverse_diagonal(Board, Row-Col, 1, [Value-Row-Col | Rest]) :- %1 means we're going Up-Right or Down-Left
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
     Value =\= wgoal,
     Value =\= bgoal,
-    NextRow is Row - 1,
-    NextRow2 is Row + 1,
-    NextCol is Col + 1,
-    NextCol2 is Col - 1,
+    NextRow is Row - 1, NextCol is Col + 1,
+    NextRow2 is Row + 1, NextCol2 is Col - 1,
     (traverse_diagonal(Board, NextRow1-NextCol1, 1, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-NextCol2, 1, PartialDiagonal2)),
-    append(PartialDiagonal1, [Value | PartialDiagonal2], Rest).
+    append(PartialDiagonal1, [Value-Row-Col | PartialDiagonal2], Rest).
 
 % steps_in_diagonal(+Board, +PieceType, +RowI, +Dir, -Count)
 % Counts the number of steps the given piece can make in the given diagonal
@@ -103,21 +101,21 @@ steps_in_diagonal(Board, black, RowI-ColI, 0, Count) :-
     traverse_diagonal(Board, RowI-ColI, 0, List1),
     remove_duplicates(List, List1),
     count_pieces_on_row(black, 0, Count1),
-    count_pieces_on_diagonal(white, 0, Count2),
+    count_pieces_on_row(white, 0, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, white, RowI-ColI, 1, Count) :-
     traverse_diagonal(Board, RowI-ColI, 1, List1),
     remove_duplicates(List, List1),
     count_pieces_on_row(white, 1, Count1),
-    count_pieces_on_diagonal(black, 1, Count2),
+    count_pieces_on_row(black, 1, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, black, RowI-ColI, 1, Count) :-
     traverse_diagonal(Board, RowI-ColI, 1, List1),
     remove_duplicates(List, List1),
     count_pieces_on_row(black, 1, Count1),
-    count_pieces_on_diagonal(white, 1, Count2),
+    count_pieces_on_row(white, 1, Count2),
     Count is Count1 - Count2,
     Count > 0.
 
@@ -153,24 +151,16 @@ validate_move(GameState,ColI-RowI,ColF-RowF) :-
     steps_in_row(Board, PieceType, RowI, MoveCount),
     NofMoves =:= MoveCount.
 
-% winnerMoves(Moves, WinnerMoves)
-% Given the total number of moves in a game, gets the number of moves the winner made
-winner_moves(Moves, WinnerMoves):-
-    Moves mod 2 =:= 1,
-    WinnerMoves is (Moves // 2) + 1, !.
-winner_moves(Moves, WinnerMoves):-
-     WinnerMoves is Moves // 2.
-
 % show_winner(+GameState, +Winner)
 % Prints the winner of the game and number of moves they made
-show_winner([_,_,TotalMoves], Winner):-
+show_winner([_,_,_,TotalMoves], Winner):-
     name_of(Winner, Name),
     winner_moves(TotalMoves, WinnerMoves),
     format('Winner is ~a with ~d moves!\n', [Name, WinnerMoves]).
 
 % game_over(+GameState, +Winner)
 % Checks if the game is over
-game_over([Board,OtherPlayer,_], Winner):- %TODO, check if Row 1 or Row 9 has any opposite colored pieces.
+game_over([Board,OtherPlayer,_], Winner):- %TODO, check if Row 1 or Row 9 has any opposite colored pieces, check if player has any valid moves left to play.
 .
 % game_cycle(+GameState)
 % Loop that keeps the game running
@@ -195,9 +185,8 @@ print_turn([_, Player, _]):-
 % Prints the board
 display_game([Board,_,_,_]) :-
     clear_console,
-    length(Board, Size),
-    game_header.
-    % TODO
+    game_header,
+    print_board.
 
 % move(+GameState, +Move, -NewGameState)
 % Moves a piece
