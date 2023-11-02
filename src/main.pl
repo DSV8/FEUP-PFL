@@ -5,12 +5,12 @@
 
 % diagonal_move(+PosOrigin,+PosDestination, -NofMoves)
 % Checks if the move is diagonal
-diagonal_move(ColI-RowI,ColF-RowF, ColDif-RowDif) :-
+diagonal_move(ColI-RowI, ColF-RowF, ColDif-RowDif) :-
     ColI =:= ColF,                                  % diagonal II/IV Quadrant
     ColDif is abs(ColF - ColI),
     RowI =/= RowF,
     RowDif is abs(RowF - RowI).
-diagonal_move(ColI-RowI,ColF-RowF, ColDif-RowDif) :-
+diagonal_move(ColI-RowI, ColF-RowF, ColDif-RowDif) :-
     ColI =/= ColF,                                  % diagonal I/III Quadrant
     ColDif is abs(ColF - ColI),
     RowI =/= RowF,
@@ -128,7 +128,7 @@ noOwnGoal(Board, RowF, black) :-
 
 % validate_move(+Board, +CoordsOrigin, +CoordsDestination)
 % Checks if the move is valid or not
-validate_move(GameState,ColI-RowI,ColF-RowF) :-
+validate_move(GameState, ColI-RowI, ColF-RowF) :-
     [Board,Player,_] = GameState,
     valid_position(ColI-RowI), valid_position(ColF-RowF),
     position(Board, ColI-RowI, PieceI), position(Board, ColF-RowF, PieceF),
@@ -151,8 +151,8 @@ validate_move(GameState,ColI-RowI,ColF-RowF) :-
     steps_in_row(Board, PieceType, RowI, MoveCount),
     NofMoves =:= MoveCount.
 
-% winnerMoves(Moves, WinnerMoves)
-% Given the total number of moves in a game, gets the number of moves the winner made
+% winnerMoves(+Moves, -WinnerMoves)
+% Gets the number of moves the winner made
 winner_moves(Moves, WinnerMoves):-
     Moves mod 2 =:= 1,
     WinnerMoves is (Moves // 2) + 1, !.
@@ -226,7 +226,7 @@ valid_moves(GameState, Player, ListOfMoves):-
     [Board,Player,TotalMoves] = GameState,
     findall(ColI-RowI-ColF-RowF, validate_move([Board,Player,TotalMoves],ColI-RowI,ColF-RowF), ListOfMoves).
 
-% choose_move(+GameState,+Player,+Level,-Move)
+% choose_move(+GameState, +Player, +Level, -Move)
 % Choose move for human player
 choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
     \+difficulty(Player, _),                    

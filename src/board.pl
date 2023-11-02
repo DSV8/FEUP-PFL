@@ -2,7 +2,7 @@
 :- consult(data).
 :- consult(utils).
 
-% put_piece(+Board,+Coordinate,+Piece,-NewBoard).
+% put_piece(+Board, +Coordinate, +Piece, -NewBoard).
 % Unifies NewBoard with a matrix representing the placement of Piece on Board in Col-Row coordinates
 put_piece(Board, Col-Row, Piece, NewBoard) :-
     RowIndex is Row - 1, ColIndex is Col - 1,
@@ -10,7 +10,7 @@ put_piece(Board, Col-Row, Piece, NewBoard) :-
     replace(ColIndex, Piece, Line, NewLine),
     replace(RowIndex, NewLine, Board, NewBoard).
 
-% position(+Board,+Coordinate,-Piece)
+% position(+Board, +Coordinate, -Piece)
 % Gives the piece on that coordinate in the board
 position(Board, Col-Row, Piece) :- 
     Row =< 4,
@@ -28,7 +28,7 @@ position(Board, Col-Row, Piece) :-
 valid_position(Row-Col) :- between(0, 4, Row), R is Row + 4 - 2 * Row, between(R, 8, Col), !.
 valid_position(Row-Col) :- between(5, 8, Row), R is 12 - Row, between(0, R, Col), !.
 
-% initial_state(+Size,-GameState)
+% initial_state(+Size, -GameState)
 % Unifies Board with a Size matrix that represents the game:
 initial_state(Size, GameState):-
     print_board.

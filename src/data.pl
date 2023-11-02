@@ -2,11 +2,11 @@
 % Find the Players name
 :- dynamic name_of/2.
 
-% difficulty(+Bot,-Difficulty)
+% difficulty(+Bot, -Difficulty)
 % Find the Bot difficulty
 :- dynamic difficulty/2.
 
-% board(+Size,+Matrix)
+% board(+Size, +Matrix)
 % Board initial structure
 board(9, [
 [unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
@@ -20,7 +20,7 @@ board(9, [
 [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]
 ]).
 
-% piece_info(?Type, ?Player, +Piece)
+% piece_info(?Type, ?Player, ?Piece)
 % It allows to generalize the type of piece and to know the player that uses it
 piece_info(white, player1, white).
 piece_info(black, player2, black).
@@ -29,12 +29,12 @@ piece_info(wgoal, neutral).
 piece_info(bgoal, neutral).
 piece_info(unused, unused).
 
-% change_turn(+CurrentPlayer,-NextPlayer)
+% change_turn(+CurrentPlayer, -NextPlayer)
 % Change player turn
 change_turn(player1, player2).
 change_turn(player2, player1).
 
-% symbol(+Piece,-Symbol)
+% symbol(+Piece, -Symbol)
 % Translates the piece to a visible symbol on the board
 symbol(black, 'B') :- !.
 symbol(white, 'W') :- !.
