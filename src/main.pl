@@ -63,11 +63,11 @@ steps_in_row(Board, black, RowI, Count) :-
     Count is Count1 - Count2,
     Count > 0.
 
-% traverse_diagonal(+Board, +Row-Col, +Dir, -List)
+% traverse_diagonal(+Board, +Row-Col, +Dir, ?List)
 % Helper predicate to traverse the diagonal and collect values.
 traverse_diagonal(_, 0-_, _, []). % We've reached the end of the diagonal.
 traverse_diagonal(_, _-0, _, []). % We've reached the end of the diagonal.
-traverse_diagonal(Board, Row-Col, 0, [Value-Row-Col | Rest]) :- %0 means we're going Up-Left or Down-Right
+traverse_diagonal(Board, Row-Col, 0, Diagonal) :- %0 means we're going Up-Left or Down-Right
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
     Value =\= wgoal,
@@ -76,8 +76,8 @@ traverse_diagonal(Board, Row-Col, 0, [Value-Row-Col | Rest]) :- %0 means we're g
     NextRow2 is Row + 1,
     (traverse_diagonal(Board, NextRow1-Col, 0, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-Col, 0, PartialDiagonal2)),
-    append(PartialDiagonal1, [Value-Row-Col | PartialDiagonal2], Rest).
-traverse_diagonal(Board, Row-Col, 1, [Value-Row-Col | Rest]) :- %1 means we're going Up-Right or Down-Left
+    append(PartialDiagonal1, [Value-Row-Col | PartialDiagonal2], Diagonal).
+traverse_diagonal(Board, Row-Col, 1, Diagonal) :- %1 means we're going Up-Right or Down-Left
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
     Value =\= wgoal,
@@ -86,7 +86,7 @@ traverse_diagonal(Board, Row-Col, 1, [Value-Row-Col | Rest]) :- %1 means we're g
     NextRow2 is Row + 1, NextCol2 is Col - 1,
     (traverse_diagonal(Board, NextRow1-NextCol1, 1, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-NextCol2, 1, PartialDiagonal2)),
-    append(PartialDiagonal1, [Value-Row-Col | PartialDiagonal2], Rest).
+    append(PartialDiagonal1, [Value-Row-Col | PartialDiagonal2], Diagonal).
 
 % steps_in_diagonal(+Board, +PieceType, +RowI, +Dir, -Count)
 % Counts the number of steps the given piece can make in the given diagonal
@@ -151,6 +151,14 @@ validate_move(GameState,ColI-RowI,ColF-RowF) :-
     steps_in_row(Board, PieceType, RowI, MoveCount),
     NofMoves =:= MoveCount.
 
+% winnerMoves(Moves, WinnerMoves)
+% Given the total number of moves in a game, gets the number of moves the winner made
+winner_moves(Moves, WinnerMoves):-
+    Moves mod 2 =:= 1,
+    WinnerMoves is (Moves // 2) + 1, !.
+winner_moves(Moves, WinnerMoves):-
+     WinnerMoves is Moves // 2.
+
 % show_winner(+GameState, +Winner)
 % Prints the winner of the game and number of moves they made
 show_winner([_,_,_,TotalMoves], Winner):-
@@ -158,10 +166,20 @@ show_winner([_,_,_,TotalMoves], Winner):-
     winner_moves(TotalMoves, WinnerMoves),
     format('Winner is ~a with ~d moves!\n', [Name, WinnerMoves]).
 
-% game_over(+GameState, +Winner)
+% game_over(+GameState, -Winner)
 % Checks if the game is over
-game_over([Board,OtherPlayer,_], Winner):- %TODO, check if Row 1 or Row 9 has any opposite colored pieces, check if player has any valid moves left to play.
-.
+game_over([Board,Player,_], Winner):- % Check if Row 1 or Row 9 has any opposite colored pieces.
+    count_pieces_on_line(Board, 1, white, Count1),
+    count_pieces_on_line(Board, 9, black, Count2),
+    (   Count1 > 0
+    ->  Winner is white
+    ;   Count2 > 0
+    ->  Winner is black
+    ).
+game_over([Board,Player,_], Winner):- % Check if player has any valid moves left to play.
+    valid_moves(GameState, Player, ListOfMoves),
+    length(ListOfMoves, 0).
+
 % game_cycle(+GameState)
 % Loop that keeps the game running
 game_cycle(GameState):-
@@ -218,8 +236,7 @@ choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
 choose_move([Board,Player,TotalMoves], Move):-
     difficulty(Player, Level),                  
     choose_move([Board, Player, TotalMoves], Player, Level, Move), !.  
-    % TODO
-
+    % TODO, Implement AI
 
 % play/0
 % Starts the game and clears data when it ends 
