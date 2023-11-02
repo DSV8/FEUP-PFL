@@ -1,4 +1,5 @@
 :- use_module(library(between)).
+:- use_module(library(random)).
 
 % clear_buffer/0
 % Clears input buffer
@@ -81,3 +82,15 @@ list_length([_ | Tail], Length) :-
 replace(Index, Element, List, Result) :-
   nth0(Index, List, _, R),
   nth0(Index, Result, Element, R).
+
+% init_random_state/0
+% Initialize the random module
+init_random_state :-
+    now(X),
+    setrand(X).
+
+% generate_random_from_list(+List, -RandomNumber)
+% Generates a random number between 1 and the length of the list
+generate_random_from_list(List, RandomNumber) :-
+    length(List, ListLength),
+    random_between(1, ListLength, RandomNumber).

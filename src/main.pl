@@ -213,7 +213,7 @@ move(GameState, ColI-RowI-ColF-RowF, NewGameState):-
     position(Board,ColI-RowI,Piece),
     put_piece(Board, ColI-RowI, empty, NewBoard1),
     put_piece(NewBoard1, ColF-RowF, Piece, NewBoard),
-    other_player(Player, NewPlayer),
+    change_turn(Player, NewPlayer),
     NewTotalMoves is TotalMoves + 1,
     NewGameState = [NewBoard, NewPlayer, NewTotalMoves].
 
@@ -233,10 +233,14 @@ choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
     repeat,
     get_move(Board, ColI-RowI-ColF-RowF),                 
     validate_move([Board,Player,TotalMoves], ColI-RowI, ColF-RowF), !.  
-choose_move([Board,Player,TotalMoves], Move):-
+choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
     difficulty(Player, Level),                  
-    choose_move([Board, Player, TotalMoves], Player, Level, Move), !.  
-    % TODO, Implement AI
+    choose_move([Board, Player, TotalMoves], Player, Level, ColI-RowI-ColF-RowF), !.
+choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
+    valid_moves(GameState, Player, ListOfMoves),
+    length(ListOfMoves, Length),
+    generate_random_from_list(ListOfMoves, Random),
+    nth1(Random, ListOfMoves, ColI-RowI-ColF-RowF).
 
 % play/0
 % Starts the game and clears data when it ends 

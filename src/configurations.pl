@@ -32,7 +32,7 @@ menu_option(3):-
     choose_difficulty(player2).
 
 % choose_player(-Player)
-% Unifies player with the player who will start the game
+% Chooses the player that will start the game
 choose_player(Player):-
     name_of(player1, Name1),
     name_of(player2, Name2),
@@ -67,8 +67,8 @@ set_mode :-
 
 % configuration(-GameState)
 % Initialize GameState with Board and first Player
-configurations([Board,Player,[],0]):-
+configurations([Board, Player, 0]):-
     game_header,
     set_mode,
     choose_player(Player), 
-    init_state(Size, Board).
+    initial_state(Size, [Board, Player, 0]).

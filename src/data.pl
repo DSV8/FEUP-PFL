@@ -94,6 +94,7 @@ print_board_aux([Row | Rest], N) :-
     print_row(Row),
     print_board(Rest, NextN).
 
+% print_spaces(+N)
 % Predicate to print spaces before a row of cells
 print_spaces(0).
 print_spaces(N) :-
