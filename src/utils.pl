@@ -59,18 +59,22 @@ get_move(Size, Col1-Row1-Col2-Row2):-
     get_option(2, Max, 'Origin row', Row1),
     RowAux1 is Row1 - 1,
     (   (RowAux1 >= 1, RowAux1 =< 4)
-    ->  (NofCol1 is RowAux1 + 4 - 2 * RowAux1, 
-        get_option(NofCol1 + 1, Size, 'Origin column', Col1))  
+    ->  (NofCol1 is RowAux1 + 4 - 2 * RowAux1,
+        NofColAux1 is NofCol1 + 1,
+        get_option(NofColAux1, Size, 'Origin column', Col1))  
     ;   (NofCol1 is 12 - RowAux1,
-        get_option(1, NofCol1 + 1, 'Origin column', Col1))
+        NofColAux1 is NofCol1 + 1,
+        get_option(1, NofColAux1, 'Origin column', Col1))
     ),
     get_option(1, Size, 'Destination row', Row2),
     RowAux2 is Row2 - 1,
     (   (RowAux2 >= 0, RowAux2 =< 4)
-    ->  (NofCol2 is RowAux2 + 4 - 2 * RowAux2,    
-        get_option(NofCol2 + 1, Size, 'Destination column', Col2))
-    ;   (NofCol2 is 12 - RowAux2, 
-        get_option(1, NofCol2 + 1, 'Destination column', Col2))
+    ->  (NofCol2 is RowAux2 + 4 - 2 * RowAux2,
+        NofColAux2 is NofCol2 + 1,
+        get_option(NofColAux2, Size, 'Destination column', Col2))
+    ;   (NofCol2 is 12 - RowAux2,
+        NofColAux2 is NofCol2 + 1,
+        get_option(1, NofColAux2, 'Destination column', Col2))
     ).
 
 % list_length(+List, -Length)

@@ -43,20 +43,19 @@ choose_player(Player):-
 % game_header/0
 % Game header display
 game_header:-
-    write('+---------------------------+\n'),
-    write('|          DIFFERO          |\n'),
-    write('+---------------------------+\n').
+    write('+---------------------------------------------------+\n'),
+    write('|                      DIFFERO                      |\n'),
+    write('+---------------------------------------------------+\n').
 
 % menu/0
 % Main menu
 menu:-
-    write('+---------------------------+\n'),
-    write('| Please select game mode:  |\n'),
-    write('+---------------------------+\n'),
-    write('| 1 - Human vs Human        |\n'),
-    write('| 2 - Human vs Bot          |\n'),
-    write('| 3 - Bot vs Bot            |\n'),
-    write('+---------------------------+\n').
+    write('| Please select game mode:                          |\n'),
+    write('+---------------------------------------------------+\n'),
+    write('| 1 - Human vs Human                                |\n'),
+    write('| 2 - Human vs Bot                                  |\n'),
+    write('| 3 - Bot vs Bot                                    |\n'),
+    write('+---------------------------------------------------+\n').
 
 % set_mode/0
 % Game mode choice

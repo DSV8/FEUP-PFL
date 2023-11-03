@@ -85,14 +85,14 @@ print_board(Board) :-
 print_board_aux([], _).
 print_board_aux([Row | Rest], N) :-
     (   (N =:= 0; N =:= 8)
-    ->  SpaceCount is 12
+    ->  SpaceCount is 13
     ;   (N =:= 1; N =:= 7)
-    ->  SpaceCount is 9
+    ->  SpaceCount is 10
     ;   (N =:= 2; N =:= 6)
-    ->  SpaceCount is 6
+    ->  SpaceCount is 7
     ;   (N =:= 3; N =:= 5)
-    ->  SpaceCount is 3
-    ;   SpaceCount is 0
+    ->  SpaceCount is 4
+    ;   SpaceCount is 1
     ),
     NextN is N + 1,
     print_spaces(SpaceCount),
