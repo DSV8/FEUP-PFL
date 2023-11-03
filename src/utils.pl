@@ -1,5 +1,7 @@
 :- use_module(library(between)).
 :- use_module(library(random)).
+:- use_module(library(lists)).
+:- consult(data).
 
 % clear_buffer/0
 % Clears input buffer
@@ -13,15 +15,11 @@ clear_buffer:-
 clear_console:- 
     write('\33\[2J').
 
-% get_line(+Acc, -Result)
-% Stores in Result an input line up to endline '\n'
-get_line(Acc, Result):-
-    get_char(Char),
-    Char \= '\n',
-    append(Acc, [Char], Acc1),
-    get_line(Result, Acc1).
-get_line(Acc, Result):-
-    atom_chars(Result, Acc).
+% clear_data/0
+% Clears all assertions for the next game
+clear_data:-
+    retractall(difficulty(_, _)),
+    retractall(name_of(_, _)).
 
 % abs(+Number,-AbsNumber)
 % Stores in AbsNumber the absolute value of Number
@@ -32,7 +30,7 @@ abs(X,Y) :- Y is -X.
 % Asks player username. Dynamically associate the username to the player.
 get_username(Player):-
     format('~a, please type your username? ', [Player]),
-    get_line(Name, []),
+    read(Name),
     asserta(name_of(Player, Name)).
 
 % read_number(-Number)
@@ -54,21 +52,26 @@ get_option(Min, Max, Context, Value):-
     read_number(Value),
     between(Min, Max, Value), !.
 
-% get_move(+Board, -Coordinate)
+% get_move(+Size, -Coordinate)
 % Stores in Coordinate a valid coordinate given by input, within the Board
-get_move(Board, Col1-Row1-Col2-Row2):-
-    get_option(1, Size, 'Origin row', Row1),
-    (   (Row1 >= 1, Row1 =< 5)
-    ->  NofCol1 is Row1 + 4 - 2 * Row1
-    ;   NofCol1 is 12 - Row1
+get_move(Size, Col1-Row1-Col2-Row2):-
+    Max is Size - 1,
+    get_option(2, Max, 'Origin row', Row1),
+    RowAux1 is Row1 - 1,
+    (   (RowAux1 >= 1, RowAux1 =< 4)
+    ->  (NofCol1 is RowAux1 + 4 - 2 * RowAux1, 
+        get_option(NofCol1 + 1, Size, 'Origin column', Col1))  
+    ;   (NofCol1 is 12 - RowAux1,
+        get_option(1, NofCol1 + 1, 'Origin column', Col1))
     ),
-    get_option(1, NofCol1, 'Origin column', Col1),
     get_option(1, Size, 'Destination row', Row2),
-    (   (Row2 >= 1, Row2 =< 5)
-    ->  NofCol2 is Row2 + 4 - 2 * Row2
-    ;   NofCol2 is 12 - Row2
-    ),
-    get_option(1, NofCol2, 'Destination column', Col2).
+    RowAux2 is Row2 - 1,
+    (   (RowAux2 >= 0, RowAux2 =< 4)
+    ->  (NofCol2 is RowAux2 + 4 - 2 * RowAux2,    
+        get_option(NofCol2 + 1, Size, 'Destination column', Col2))
+    ;   (NofCol2 is 12 - RowAux2, 
+        get_option(1, NofCol2 + 1, 'Destination column', Col2))
+    ).
 
 % list_length(+List, -Length)
 % Stores the length of the list in Length
@@ -86,11 +89,11 @@ replace(Index, Element, List, Result) :-
 % init_random_state/0
 % Initialize the random module
 init_random_state :-
-    now(X),
+    getrand(X),
     setrand(X).
 
 % generate_random_from_list(+List, -RandomNumber)
 % Generates a random number between 1 and the length of the list
 generate_random_from_list(List, RandomNumber) :-
     length(List, ListLength),
-    random_between(1, ListLength, RandomNumber).
+    random(1, ListLength, RandomNumber).

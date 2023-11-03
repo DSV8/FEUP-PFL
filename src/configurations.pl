@@ -3,6 +3,7 @@
 :- use_module(library(system), [now/1]).
 :- consult(utils).
 :- consult(data).
+:- consult(board).
 
 % choose_difficulty(+Bot)
 % Choose Bot difficulty (1 or 2)
@@ -17,11 +18,11 @@ choose_difficulty(Bot) :-
 % Main menu options. Each represents a game mode.
 menu_option(1):-
     write('Human vs. Human\n'),
-    get_name(player1),
-    get_name(player2).
+    get_username(player1),
+    get_username(player2).
 menu_option(2):-
     write('Human vs. Bot\n'),
-    get_name(player1),
+    get_username(player1),
     asserta((name_of(player2, 'Bot'))), !, 
     choose_difficulty(player2).
 menu_option(3):-
@@ -36,9 +37,8 @@ menu_option(3):-
 choose_player(Player):-
     name_of(player1, Name1),
     name_of(player2, Name2),
-    format('Who starts playing?\n1 - ~a with WHITE pieces\n2 - ~a with BLACK pieces\n', [Name1, Name2]),
-    get_option(1, 2, 'Select', Index),
-    nth1(Index, [player1, player2], Player).
+    write('WHITE starts.'),
+    nth1(1, [player1, player2], Player).
 
 % game_header/0
 % Game header display
@@ -71,4 +71,4 @@ configurations([Board, Player, 0]):-
     game_header,
     set_mode,
     choose_player(Player), 
-    initial_state(Size, [Board, Player, 0]).
+    initial_state(9, [Board, Player, 0]).

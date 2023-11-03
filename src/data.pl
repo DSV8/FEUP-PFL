@@ -58,21 +58,26 @@ print_cell(Cell) :-
 % display_dash(+List)
 % Predicate to print a dash if there are still members in the list.
 display_dash([_|_]) :-
-    write(' — ').
+    write(' - ').
 display_dash([]).
 
 % print_row(+Row)
 % Predicate to print a row of cells
 print_row([]) :- nl, nl.
+print_row([Cell | [unused | _]]) :-
+    Cell \= unused,
+    print_cell(Cell),
+    print_row([]).
+print_row([unused | Rest]) :-
+    print_row(Rest).
 print_row([Cell | Rest]) :-
     print_cell(Cell),
     display_dash(Rest),
     print_row(Rest).
 
-% print_board/0
+% print_board(+Board)
 % Predicate to print the entire hexagonal board
-print_board :-
-    board(9, Board),
+print_board(Board) :-
     print_board_aux(Board, 0).
 
 % print_board_aux(+Board, +NOfRow)
@@ -80,19 +85,19 @@ print_board :-
 print_board_aux([], _).
 print_board_aux([Row | Rest], N) :-
     (   (N =:= 0; N =:= 8)
-    ->  SpaceCount is 4
+    ->  SpaceCount is 12
     ;   (N =:= 1; N =:= 7)
-    ->  SpaceCount is 3
+    ->  SpaceCount is 9
     ;   (N =:= 2; N =:= 6)
-    ->  SpaceCount is 2
+    ->  SpaceCount is 6
     ;   (N =:= 3; N =:= 5)
-    ->  SpaceCount is 1
+    ->  SpaceCount is 3
     ;   SpaceCount is 0
     ),
     NextN is N + 1,
     print_spaces(SpaceCount),
     print_row(Row),
-    print_board(Rest, NextN).
+    print_board_aux(Rest, NextN).
 
 % print_spaces(+N)
 % Predicate to print spaces before a row of cells
@@ -107,25 +112,25 @@ print_spaces(N) :-
  *
  *  Board structure
  *
- *  I --------------     [w] — [w] — [w] — [w] — [w]             
+ *  1 --------------     [w] - [w] - [w] - [w] - [w]             
  *                                                              
- *  H ------------    [ ] — [B] — [B] — [B] — [B] — [ ]      
+ *  2 ------------    [ ] - [B] - [B] - [B] - [B] - [ ]      
  *                                                            
- *  G ----------   [ ] — [B] — [ ] — [B] — [ ] — [B] — [ ]   
+ *  3 ----------   [ ] - [B] - [ ] - [B] - [ ] - [B] - [ ]   
  *                                                              
- *  F --------  [ ] — [B] — [B] — [B] — [B] — [B] — [B] — [ ] 
+ *  4 --------  [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [ ] 
  *                                                              
- *  E ------ [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ] — [ ]
- *                                                                
- *  D --------  [ ] — [W] — [W] — [W] — [W] — [W] — [W] — [ ]     \
- *                                                                 \
- *  C ----------   [ ] — [W] — [ ] — [W] — [ ] — [W] — [ ]     \    \
- *                                                              \    \ 
- *  B ------------    [ ] — [W] — [W] — [W] — [W] — [ ]    \     \    \
- *                                                          \     \    \
- *  A --------------     [b] — [b] — [b] — [b] — [b]    \    \     \    \
- *                                                       \    \     \    \
- *                          \     \     \     \     \     \    \     \    \
- *                           \     \     \     \     \     \    \     \    \
- *                            1     2     3     4     5     6    7     8    9                  
+ *  5 ------ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
+ *                                                               \       
+ *  6 --------  [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]     \      
+ *                                                                 \      
+ *  7 ----------   [ ] - [W] - [ ] - [W] - [ ] - [W] - [ ]      \   \
+ *                                                               \   \
+ *  8 ------------    [ ] - [W] - [W] - [W] - [W] - [ ]      \    \   \
+ *                                                      \     \    \   \
+ *  9 --------------     [b] - [b] - [b] - [b] - [b]     \     \    \   \
+ *                                                   \    \     \    \   \
+ *                          \     \      \      \     \    \     \    \   \
+ *                           \     \      \      \     \    \     \    \   \
+ *                            1     2      3      4     5    6     7    8   9                  
 **/

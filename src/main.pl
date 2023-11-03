@@ -1,19 +1,21 @@
 :- use_module(library(lists)).
 :- use_module(library(random)).
+:- use_module(library(sets)).
 :- consult(configurations).
 :- consult(board).
+:- consult(utils).
 
 % diagonal_move(+PosOrigin,+PosDestination, -NofMoves)
 % Checks if the move is diagonal
 diagonal_move(ColI-RowI, ColF-RowF, ColDif-RowDif) :-
     ColI =:= ColF,                                  % diagonal II/IV Quadrant
     ColDif is abs(ColF - ColI),
-    RowI =/= RowF,
+    RowI =\= RowF,
     RowDif is abs(RowF - RowI).
 diagonal_move(ColI-RowI, ColF-RowF, ColDif-RowDif) :-
-    ColI =/= ColF,                                  % diagonal I/III Quadrant
+    ColI =\= ColF,                                  % diagonal I/III Quadrant
     ColDif is abs(ColF - ColI),
-    RowI =/= RowF,
+    RowI =\= RowF,
     RowDif is abs(RowF - RowI),
     ColDif =:= RowDif.
 
@@ -70,9 +72,9 @@ traverse_diagonal(_, _-0, _, []). % We've reached the end of the diagonal.
 traverse_diagonal(Board, Row-Col, 0, Diagonal) :- %0 means we're going Up-Left or Down-Right
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
-    Value =\= wgoal,
-    Value =\= bgoal,
-    NextRow is Row - 1,
+    Value \= wgoal,
+    Value \= bgoal,
+    NextRow1 is Row - 1,
     NextRow2 is Row + 1,
     (traverse_diagonal(Board, NextRow1-Col, 0, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-Col, 0, PartialDiagonal2)),
@@ -80,10 +82,12 @@ traverse_diagonal(Board, Row-Col, 0, Diagonal) :- %0 means we're going Up-Left o
 traverse_diagonal(Board, Row-Col, 1, Diagonal) :- %1 means we're going Up-Right or Down-Left
     valid_position(Row-Col),
     position(Board, Row-Col, Value),
-    Value =\= wgoal,
-    Value =\= bgoal,
-    NextRow is Row - 1, NextCol is Col + 1,
-    NextRow2 is Row + 1, NextCol2 is Col - 1,
+    Value \= wgoal,
+    Value \= bgoal,
+    NextRow1 is Row - 1,
+    NextCol1 is Col + 1,
+    NextRow2 is Row + 1,
+    NextCol2 is Col - 1,
     (traverse_diagonal(Board, NextRow1-NextCol1, 1, PartialDiagonal1),
      traverse_diagonal(Board, NextRow2-NextCol2, 1, PartialDiagonal2)),
     append(PartialDiagonal1, [Value-Row-Col | PartialDiagonal2], Diagonal).
@@ -92,38 +96,38 @@ traverse_diagonal(Board, Row-Col, 1, Diagonal) :- %1 means we're going Up-Right 
 % Counts the number of steps the given piece can make in the given diagonal
 steps_in_diagonal(Board, white, RowI-ColI, 0, Count) :-
     traverse_diagonal(Board, RowI-ColI, 0, List1),
-    remove_duplicates(List, List1),
+    list_to_set(List1, List),
     count_pieces_on_row(white, List, Count1),
     count_pieces_on_row(black, List, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, black, RowI-ColI, 0, Count) :-
     traverse_diagonal(Board, RowI-ColI, 0, List1),
-    remove_duplicates(List, List1),
-    count_pieces_on_row(black, 0, Count1),
-    count_pieces_on_row(white, 0, Count2),
+    list_to_set(List1, List),
+    count_pieces_on_row(black, List, Count1),
+    count_pieces_on_row(white, List, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, white, RowI-ColI, 1, Count) :-
     traverse_diagonal(Board, RowI-ColI, 1, List1),
-    remove_duplicates(List, List1),
-    count_pieces_on_row(white, 1, Count1),
-    count_pieces_on_row(black, 1, Count2),
+    list_to_set(List1, List),
+    count_pieces_on_row(white, List, Count1),
+    count_pieces_on_row(black, List, Count2),
     Count is Count1 - Count2,
     Count > 0.
 steps_in_diagonal(Board, black, RowI-ColI, 1, Count) :-
     traverse_diagonal(Board, RowI-ColI, 1, List1),
-    remove_duplicates(List, List1),
-    count_pieces_on_row(black, 1, Count1),
-    count_pieces_on_row(white, 1, Count2),
+    list_to_set(List1, List),
+    count_pieces_on_row(black, List, Count1),
+    count_pieces_on_row(white, List, Count2),
     Count is Count1 - Count2,
     Count > 0.
 
-% noOwnGoal(+Board, +ColF-RowF, +Piece)
+% noOwnGoal(+RowF, +Piece)
 % Checks if the move is not to it's own goal
-noOwnGoal(Board, RowF, white) :-
+noOwnGoal(RowF, white) :-
     RowF =\= 9.
-noOwnGoal(Board, RowF, black) :-
+noOwnGoal(RowF, black) :-
     RowF =\= 1.
 
 % validate_move(+Board, +CoordsOrigin, +CoordsDestination)
@@ -138,7 +142,7 @@ validate_move(GameState, ColI-RowI, ColF-RowF) :-
     DeltaRow is (RowF - RowI),
     DeltaCol is (ColF - ColI),
     move_direction(DeltaRow-DeltaCol, Dir),
-    noOwnGoal(Board, RowF, PieceType),
+    noOwnGoal(RowF, PieceType),
     steps_in_diagonal(Board, PieceType, RowI-ColI, Dir, MoveCount),
     NofMoves =:= MoveCount.
 validate_move(GameState,ColI-RowI,ColF-RowF) :-
@@ -168,7 +172,7 @@ show_winner([_,_,_,TotalMoves], Winner):-
 
 % game_over(+GameState, -Winner)
 % Checks if the game is over
-game_over([Board,Player,_], Winner):- % Check if Row 1 or Row 9 has any opposite colored pieces.
+game_over([Board,_,_], Winner):- % Check if Row 1 or Row 9 has any opposite colored pieces.
     count_pieces_on_line(Board, 1, white, Count1),
     count_pieces_on_line(Board, 9, black, Count2),
     (   Count1 > 0
@@ -176,14 +180,14 @@ game_over([Board,Player,_], Winner):- % Check if Row 1 or Row 9 has any opposite
     ;   Count2 > 0
     ->  Winner is black
     ).
-game_over([Board,Player,_], Winner):- % Check if player has any valid moves left to play.
-    valid_moves(GameState, Player, ListOfMoves),
+game_over([_,Player,_], Winner):- % Check if player has any valid moves left to play.
+    valid_moves([_,Player,_], Player, ListOfMoves),
     length(ListOfMoves, 0).
 
 % game_cycle(+GameState)
 % Loop that keeps the game running
 game_cycle(GameState):-
-    game_over(GameState, Winner), !,
+    \+game_over(GameState, Winner), !,
     display_game(GameState),
     show_winner(GameState, Winner).
 game_cycle(GameState):-
@@ -201,10 +205,10 @@ print_turn([_, Player, _]):-
 
 % display_game(+GameState)
 % Prints the board
-display_game([Board,_,_,_]) :-
+display_game([Board,_,_]) :-
     clear_console,
     game_header,
-    print_board.
+    print_board(Board).
 
 % move(+GameState, +Move, -NewGameState)
 % Moves a piece
@@ -231,14 +235,14 @@ valid_moves(GameState, Player, ListOfMoves):-
 choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
     \+difficulty(Player, _),                    
     repeat,
-    get_move(Board, ColI-RowI-ColF-RowF),                 
+    length(Board, Size),
+    get_move(Size, ColI-RowI-ColF-RowF),                 
     validate_move([Board,Player,TotalMoves], ColI-RowI, ColF-RowF), !.  
 choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
     difficulty(Player, Level),                  
     choose_move([Board, Player, TotalMoves], Player, Level, ColI-RowI-ColF-RowF), !.
 choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
     valid_moves(GameState, Player, ListOfMoves),
-    length(ListOfMoves, Length),
     generate_random_from_list(ListOfMoves, Random),
     nth1(Random, ListOfMoves, ColI-RowI-ColF-RowF).
 

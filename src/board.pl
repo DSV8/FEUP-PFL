@@ -12,16 +12,10 @@ put_piece(Board, Col-Row, Piece, NewBoard) :-
 
 % position(+Board, +Coordinate, -Piece)
 % Gives the piece on that coordinate in the board
-position(Board, Col-Row, Piece) :- 
-    Row =< 4,
+position(Board, Col-Row, Piece) :-
+    valid_position(Col-Row),
     nth0(Row, Board, Line),
-    Col1 is Row + 4 - 2 * Row,
-    nth0(Col1, Line, Piece), !.
-position(Board, Col-Row, Piece) :- 
-    Row >= 5,
-    nth0(Row, Board, Line),
-    Col1 is 12 - Row,
-    nth0(Col1, Line, Piece), !.
+    nth0(Col, Line, Piece).
 
 % valid_position(+Row-Col)
 % Checks if the position is valid within our matrix
@@ -30,5 +24,5 @@ valid_position(Row-Col) :- between(5, 8, Row), R is 12 - Row, between(0, R, Col)
 
 % initial_state(+Size, -GameState)
 % Unifies Board with a Size matrix that represents the game:
-initial_state(Size, GameState):-
-    print_board.
+initial_state(Size, [Board,_,_]):-
+    board(Size, Board).
