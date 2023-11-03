@@ -37,7 +37,7 @@ menu_option(3):-
 choose_player(Player):-
     name_of(player1, Name1),
     name_of(player2, Name2),
-    write('WHITE starts.'),
+    write('White pieces start!\n'),
     nth1(1, [player1, player2], Player).
 
 % game_header/0
@@ -69,5 +69,5 @@ set_mode :-
 configurations([Board, Player, 0]):-
     game_header,
     set_mode,
-    choose_player(Player), 
+    choose_player(Player),
     initial_state(9, [Board, Player, 0]).
