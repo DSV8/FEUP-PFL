@@ -234,7 +234,7 @@ valid_moves(GameState, Player, ListOfMoves):-
 % Choose move for human player
 choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
     \+difficulty(Player, _),                    
-    repeat,
+    %repeat,
     length(Board, Size),
     get_move(Size, ColI-RowI-ColF-RowF),                 
     validate_move([Board,Player,TotalMoves], ColI-RowI, ColF-RowF), !.  

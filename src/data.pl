@@ -78,6 +78,7 @@ print_row([Cell | Rest]) :-
 % print_board(+Board)
 % Predicate to print the entire hexagonal board
 print_board(Board) :-
+    nl,
     print_board_aux(Board, 0).
 
 % print_board_aux(+Board, +NOfRow)
