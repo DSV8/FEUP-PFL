@@ -50,7 +50,33 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 - You cannot move the piece into the opponent’s goal.
 
 ## Game Logic
- 
+
+### Internal Game State Representation:
+
+TBD.
+
+### Game State Visualization:
+
+TBD.
+
+### Move Validation and Execution:
+
+TBD.
+
+### List of Valid Moves:
+
+TBD.
+
+### End of Game:
+
+TBD.
+
+### Game State Evaluation:
+
+TBD.
+
+### Computer Plays:
+
 TBD.
 
 ## Conclusions 
