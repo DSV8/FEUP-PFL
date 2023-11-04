@@ -23,7 +23,7 @@ menu_option(1):-
 menu_option(2):-
     write('Human vs. Bot\n'),
     get_username(player1),
-    asserta((name_of(player2, 'Bot'))), !, 
+    asserta((name_of(player2, 'Bot'))), !,
     choose_difficulty(player2).
 menu_option(3):-
     write('Bot vs. Bot\n'),
@@ -37,6 +37,9 @@ menu_option(3):-
 choose_player(Player):-
     name_of(player1, Name1),
     name_of(player2, Name2),
+    format('~a is WHITE and ~a is BLACK\n', [Name1, Name2]),
+    asserta((player_color(player1, white))),
+    asserta((player_color(player2, black))), !,
     write('White pieces start!\n'),
     nth1(1, [player1, player2], Player).
 

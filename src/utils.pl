@@ -19,7 +19,8 @@ clear_console:-
 % Clears all assertions for the next game
 clear_data:-
     retractall(difficulty(_, _)),
-    retractall(name_of(_, _)).
+    retractall(name_of(_, _)),
+    retractall(player_color(_ ,_)).
 
 % abs(+Number,-AbsNumber)
 % Stores in AbsNumber the absolute value of Number

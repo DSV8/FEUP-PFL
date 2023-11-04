@@ -6,6 +6,10 @@
 % Find the Bot difficulty
 :- dynamic difficulty/2.
 
+% player_color(+Player, -Color)
+% Find Player's Color
+:- dynamic player_color/2.
+
 % board(+Size, +Matrix)
 % Board initial structure
 board(9, [
