@@ -16,7 +16,7 @@ Both students had a 50% collaboration in the project.
 
 To install and execute the game Differo, firstly, you will need to download PFL_TP1_T03_Differo7.zip and then proceed to unzip it. Secondly, you will need to use Sicstus to consult the main.pl file which is inside the src directory. Finally, the game starts with the predicate play/0:
 
-```prolog
+```
 ? - play.
 ```
 
@@ -90,7 +90,7 @@ Difficulty between 1 and 2: 2
 
 The validation of these choices is assured by the generic predicate get_option/4, which is reusable because of the Context variable.
 
-```
+```prolog
 % get_option(+Min, +Max, +Context, -Value)
 get_option(Min, Max, Context, Value):-
     format('~a between ~d and ~d: ', [Context, Min, Max]),
@@ -100,7 +100,8 @@ get_option(Min, Max, Context, Value):-
 ```
 
 In the second choice, the username of each user is dynamically placed in the fact base (so it could be accessed through any other predicate) through the name_of/2 predicate.
-```
+
+```prolog
 % get_username(+Player)
 get_username(Player):-
     format('~a, please type your username: ', [Player]),
