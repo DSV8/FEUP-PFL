@@ -73,7 +73,6 @@ In case any piece of a player reaches the opponent's goal or if any of the playe
 
 ```prolog
 % game_over(+GameState, -Winner)
-% Checks if the game is over
 game_over([Board,_,_], Winner):- % Check if Row 1 or Row 9 has any opposite colored pieces.
     count_pieces_on_line(Board, 1, white, Count1),
     count_pieces_on_line(Board, 9, black, Count2),
