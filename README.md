@@ -62,7 +62,6 @@ Before starting the game, the user(s) is/are able to configure it. The parameter
 - 2 - Player's usernames;
 - 3 - Bot's difficulty levels.
 
-Note that in every case the user's input is validated.
 This would be an example of a possible iteration:
 
 ```
@@ -76,14 +75,10 @@ This would be an example of a possible iteration:
 | 3 - Bot vs Bot                                    |
 +---------------------------------------------------+
 Mode between 1 and 3: 2
-```
 
-```
 Human vs Bot
 player1, please type your username: User
-```
 
-```
 +---------------------------------------------------+
 | Please select player2 difficulty:                 |
 +---------------------------------------------------+
@@ -91,6 +86,26 @@ player1, please type your username: User
 | 2 - Greedy                                        |
 +---------------------------------------------------+
 Difficulty between 1 and 2: 2
+```
+
+The validation of these choices is assured by the generic predicate get_option/4, which is reusable because of the Context variable.
+
+```
+% get_option(+Min, +Max, +Context, -Value)
+get_option(Min, Max, Context, Value):-
+    format('~a between ~d and ~d: ', [Context, Min, Max]),
+    repeat,
+    read_number(Value),
+    between(Min, Max, Value), !.
+```
+
+In the second choice, the username of each user is dynamically placed in the fact base (so it could be accessed through any other predicate) through the name_of/2 predicate.
+```
+% get_username(+Player)
+get_username(Player):-
+    format('~a, please type your username: ', [Player]),
+    read(Name),
+    asserta(name_of(Player, Name)).
 ```
 
 TBD.
