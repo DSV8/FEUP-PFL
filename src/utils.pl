@@ -29,7 +29,7 @@ abs(X,Y) :- Y is -X.
 % get_username(+Player)
 % Asks player username. Dynamically associate the username to the player.
 get_username(Player):-
-    format('~a, please type your username? ', [Player]),
+    format('~a, please type your username. ', [Player]),
     read(Name),
     asserta(name_of(Player, Name)).
 
