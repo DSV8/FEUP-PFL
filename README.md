@@ -139,13 +139,13 @@ After making all the choices, the board is finally initialized through the predi
 ```prolog
 % configuration(-GameState)
 configurations([Board, Player, 0]):-
-    game_header,
-    set_mode,
-    choose_player(Player),
+    game_header,                             % prints the game header
+    set_mode,                                % allows the user to choose the mode
+    choose_player(Player),                   % asserts player1 plays with white pieces, player2 with black pieces and player1 starts playing
     initial_state(9, [Board, Player, 0]).
 ```
 
-Once the GameState is initialized, the board is displayed through the predicate print_board/1 in each iteration of the game cycle.
+Once the GameState is initialized, the board is displayed through the predicate print_board/1 (with the help of a few other auwiliar predicates) in each iteration of the game cycle.
 
 ```prolog
 % print_board(+Board)
@@ -171,17 +171,6 @@ print_board_aux([Row | Rest], N) :-
     print_row(Row),
     print_board_aux(Rest, NextN).
 
-% print_cell(+Piece)
-print_cell(Cell) :-
-    (   
-        Cell \= unused
-    ->  symbol(Cell, Symbol),
-        write('['),
-        write(Symbol),
-        write(']')
-    ; true % Do nothing
-    ).
-
 % print_row(+Row)
 print_row([]) :- nl, nl.
 print_row([Cell | [unused | _]]) :-
@@ -194,6 +183,17 @@ print_row([Cell | Rest]) :-
     print_cell(Cell),
     display_dash(Rest),
     print_row(Rest).
+
+% print_cell(+Piece)
+print_cell(Cell) :-
+    (   
+        Cell \= unused
+    ->  symbol(Cell, Symbol),
+        write('['),
+        write(Symbol),
+        write(']')
+    ; true % Do nothing
+    ).
 
 % print_spaces(+N)
 print_spaces(0).
@@ -209,7 +209,25 @@ display_dash([_|_]) :-
 display_dash([]).
 ```
 
-TBD.
+There was also the need to create the predicates piece_info/3 and symbol/2 which translate the context of game state without further dependencies.
+
+```prolog
+% piece_info(?Type, ?Player, ?Piece)
+piece_info(white, player1, white).
+piece_info(black, player2, black).
+piece_info(empty, neutral).
+piece_info(wgoal, neutral).
+piece_info(bgoal, neutral).
+piece_info(unused, unused).
+
+% symbol(+Piece, -Symbol)
+symbol(black, 'B') :- !.
+symbol(white, 'W') :- !.
+symbol(empty, ' ') :- !.
+symbol(bgoal, 'b') :- !.
+symbol(wgoal, 'w') :- !.
+symbol(unused, '') :- !.
+```
 
 ### Move Validation and Execution:
 
