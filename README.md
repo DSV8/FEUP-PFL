@@ -16,7 +16,7 @@ Both students had a 50% collaboration in the project.
 
 To install and execute the game Differo, firstly, you will need to download PFL_TP1_T03_Differo7.zip and then proceed to unzip it. Secondly, you will need to use Sicstus to consult the main.pl file which is inside the src directory. Finally, the game starts with the predicate play/0:
 
-```
+```prolog
 ? - play.
 ```
 
@@ -69,7 +69,23 @@ TBD.
 
 ### End of Game:
 
-TBD.
+In case any piece of a player reaches the opponent's goal or if any of the players has no valid moves left on their turn, the game ends and a winner is announced.
+
+```prolog
+% game_over(+GameState, -Winner)
+% Checks if the game is over
+game_over([Board,_,_], Winner):- % Check if Row 1 or Row 9 has any opposite colored pieces.
+    count_pieces_on_line(Board, 1, white, Count1),
+    count_pieces_on_line(Board, 9, black, Count2),
+    (   Count1 > 0
+    ->  Winner is white
+    ;   Count2 > 0
+    ->  Winner is black
+    ).
+game_over([_,Player,_], Winner):- % Check if player has any valid moves left to play.
+    valid_moves([_,Player,_], Player, ListOfMoves),
+    length(ListOfMoves, 0).
+```
 
 ### Game State Evaluation:
 
