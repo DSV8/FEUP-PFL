@@ -8,9 +8,10 @@
 % choose_difficulty(+Bot)
 % Choose Bot difficulty (1 or 2)
 choose_difficulty(Bot) :-
-    format('Please select ~a status:\n', [Bot]),
-    write('1 - Random\n'),
-    write('2 - Greedy\n'),
+    write('+---------------------------------------------------+\n'),
+    format('| Please select ~a difficulty:                 |\n', [Bot]),
+    write('| 1 - Random                                        |\n'),
+    write('| 2 - Greedy                                        |\n'),
     get_option(1, 2, 'Difficulty', Option), !,
     asserta((difficulty(Bot, Option))).
 
