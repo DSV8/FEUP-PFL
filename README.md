@@ -58,9 +58,9 @@ TBD.
 ### Game State Visualization:
 
 Before starting the game, the user(s) is/are able to configure it. The parameters they are able to configure being:
-    1 - Game mode (Human vs Human, Human vs Bot, Bot vs Bot);
-    2 - Player's usernames;
-    3 - Bot's difficulty levels.
+    - 1 - Game mode (Human vs Human, Human vs Bot, Bot vs Bot);
+    - 2 - Player's usernames;
+    - 3 - Bot's difficulty levels.
 
 Note that in every case the user's input is validated.
 This would be an example of a possible iteration:
