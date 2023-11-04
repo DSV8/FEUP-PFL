@@ -4,7 +4,11 @@ For the 2023/2024 Functional and Logical Programming course, we chose to do the 
 
 ## Instalation and Execution
 
-TBD.
+To install and execute the game Differo, firstly, you will need to download PFL_TP1_T03_Differo7.zip and then proceed to unzip it. Secondly, you will need to use Sicstus to consult the main.pl file which is inside the src directory. Finally, the game starts with the predicate play/0:
+
+```
+? - play.
+```
 
 ## Game Rules
 
