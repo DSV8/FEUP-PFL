@@ -1,6 +1,16 @@
-# 2023/2024 PFL Project - Differo_7
+# 2023/2024 PFL Project - Differo
 
 For the 2023/2024 Functional and Logical Programming course, we chose to do the Differo board game.
+
+Group: Differo_7
+
+### Contribution
+
+This project was done by:
+- Gonçalo de Castilho Serra Alves Martins (up202108707)
+- Diogo Silveira Viana (up202108803)
+
+Both students had a 50% collaboration in the project.
 
 ## Instalation and Execution
 
@@ -10,7 +20,7 @@ To install and execute the game Differo, firstly, you will need to download PFL_
 ? - play.
 ```
 
-## Game Rules
+## Description of the game
 
 Differo is a game for two players. It is played with a hexagonal board and 13 black and white pieces each.
 
@@ -42,14 +52,6 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 ## Game Logic
  
 TBD.
-
-## Contribution
-
-This project was done by:
-- Gonçalo de Castilho Serra Alves Martins (up202108707)
-- Diogo Silveira Viana (up202108803)
-
-Both students had a 50% collaboration in the project.
 
 ## Conclusions 
 
