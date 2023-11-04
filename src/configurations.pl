@@ -17,16 +17,16 @@ choose_difficulty(Bot) :-
 % menu_option(+N)
 % Main menu options. Each represents a game mode.
 menu_option(1):-
-    write('Human vs. Human\n'),
+    write('Human vs Human\n'),
     get_username(player1),
     get_username(player2).
 menu_option(2):-
-    write('Human vs. Bot\n'),
+    write('Human vs Bot\n'),
     get_username(player1),
     asserta((name_of(player2, 'Bot'))), !, 
     choose_difficulty(player2).
 menu_option(3):-
-    write('Bot vs. Bot\n'),
+    write('Bot vs Bot\n'),
     asserta((name_of(player1, 'Bot1'))),
     asserta((name_of(player2, 'Bot2'))), !,
     choose_difficulty(player1),
