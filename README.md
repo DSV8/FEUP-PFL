@@ -109,6 +109,31 @@ get_username(Player):-
     asserta(name_of(Player, Name)).
 ```
 
+```prolog
+% name_of(+Player, -Name)
+:- dynamic name_of/2.
+```
+
+In the third choice, the difficulty of each bot is dinamically placed in the fact base through teh difficulty/2 predicate.
+
+```prolog
+% choose_difficulty(+Bot)
+choose_difficulty(Bot) :-
+    write('+---------------------------------------------------+\n'),
+    format('| Please select ~a difficulty:                 |\n', [Bot]),
+    write('+---------------------------------------------------+\n'),
+    write('| 1 - Random                                        |\n'),
+    write('| 2 - Greedy                                        |\n'),
+    write('+---------------------------------------------------+\n'),
+    get_option(1, 2, 'Difficulty', Option), !,
+    asserta((difficulty(Bot, Option))).
+```
+
+```prolog
+% difficulty(+Bot, -Difficulty)
+:- dynamic difficulty/2.
+```
+
 TBD.
 
 ### Move Validation and Execution:
