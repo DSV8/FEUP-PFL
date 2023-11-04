@@ -134,6 +134,81 @@ choose_difficulty(Bot) :-
 :- dynamic difficulty/2.
 ```
 
+After making all the choices, the board is finally initialized through the predicate initial_state/2. Since the board is hexagonal we decided to make the boarrd size fixed as 9x9 matrix.
+
+```prolog
+% configuration(-GameState)
+configurations([Board, Player, 0]):-
+    game_header,
+    set_mode,
+    choose_player(Player),
+    initial_state(9, [Board, Player, 0]).
+```
+
+Once the GameState is initialized, the board is displayed through the predicate print_board/1 in each iteration of the game cycle.
+
+```prolog
+% print_board(+Board)
+print_board(Board) :-
+    nl,
+    print_board_aux(Board, 0).
+
+% print_board_aux(+Board, +NOfRow)
+print_board_aux([], _).
+print_board_aux([Row | Rest], N) :-
+    (   (N =:= 0; N =:= 8)
+    ->  SpaceCount is 13
+    ;   (N =:= 1; N =:= 7)
+    ->  SpaceCount is 10
+    ;   (N =:= 2; N =:= 6)
+    ->  SpaceCount is 7
+    ;   (N =:= 3; N =:= 5)
+    ->  SpaceCount is 4
+    ;   SpaceCount is 1
+    ),
+    NextN is N + 1,
+    print_spaces(SpaceCount),
+    print_row(Row),
+    print_board_aux(Rest, NextN).
+
+% print_cell(+Piece)
+print_cell(Cell) :-
+    (   
+        Cell \= unused
+    ->  symbol(Cell, Symbol),
+        write('['),
+        write(Symbol),
+        write(']')
+    ; true % Do nothing
+    ).
+
+% print_row(+Row)
+print_row([]) :- nl, nl.
+print_row([Cell | [unused | _]]) :-
+    Cell \= unused,
+    print_cell(Cell),
+    print_row([]).
+print_row([unused | Rest]) :-
+    print_row(Rest).
+print_row([Cell | Rest]) :-
+    print_cell(Cell),
+    display_dash(Rest),
+    print_row(Rest).
+
+% print_spaces(+N)
+print_spaces(0).
+print_spaces(N) :-
+    N > 0,
+    write(' '),
+    NextN is N - 1,
+    print_spaces(NextN).
+
+% display_dash(+List)
+display_dash([_|_]) :-
+    write(' - ').
+display_dash([]).
+```
+
 TBD.
 
 ### Move Validation and Execution:
