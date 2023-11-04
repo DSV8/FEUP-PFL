@@ -76,10 +76,14 @@ This would be an example of a possible iteration:
 | 3 - Bot vs Bot                                    |
 +---------------------------------------------------+
 Mode between 1 and 3: 2
+```
 
+```
 Human vs Bot
 player1, please type your username: User
+```
 
+```
 +---------------------------------------------------+
 | Please select player2 difficulty:                 |
 +---------------------------------------------------+
