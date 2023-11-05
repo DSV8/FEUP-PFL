@@ -70,7 +70,9 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
           player1,                                                                 % Player
           0                                                                        % TotalMoves
          )
+```
 
+```
 +---------------------------------------------------+
 |                      DIFFERO                      |
 +---------------------------------------------------+
