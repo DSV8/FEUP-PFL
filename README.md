@@ -55,6 +55,53 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 
 TBD.
 
+#### Initial Game State
+
+```prolog
+GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
+          [unused, unused, unused, empty, black, black, black, black, empty],
+          [unused, unused, empty, black, empty, black, empty, black, empty],
+          [unused, empty, black, black, black, black, black, black, empty],
+          [empty, empty, empty, empty, empty, empty, empty, empty, empty],
+          [empty, white, white, white, white, white, white, empty, unused],
+          [empty, white, empty, white, empty, white, empty, unused, unused],
+          [empty, white, white, white, white, empty, unused, unused, unused],
+          [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]],    % Board
+          player1,                                                                 % Player
+          0                                                                        % TotalMoves
+         )
+
++---------------------------------------------------+
+|                      DIFFERO                      |
++---------------------------------------------------+
+
+             [w] - [w] - [w] - [w] - [w]             
+
+          [ ] - [B] - [B] - [B] - [B] - [ ]      
+
+       [ ] - [B] - [ ] - [B] - [ ] - [B] - [ ]   
+
+    [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [ ] 
+
+ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
+    
+    [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]
+    
+       [ ] - [W] - [ ] - [W] - [ ] - [W] - [ ]
+
+          [ ] - [W] - [W] - [W] - [W] - [ ]
+
+             [b] - [b] - [b] - [b] - [b]
+```
+
+#### Intermidiate Game State
+
+TBD.
+
+#### Final Game State
+
+TBD.
+
 ### Game State Visualization:
 
 Before starting the game, the user(s) is/are able to configure it. The parameters they are able to configure being:
