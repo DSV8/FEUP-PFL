@@ -43,7 +43,7 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 - Choose your own color. White is the first turn.
 
 ### Play procedure
-- On your turn, you moves only one of your pieces according to the following rules
+- On your turn, you only move one of your pieces according to the following rules:
 - The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
 - The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
 - You cannot move the piece off the board or into a place already occupied by another piece.
@@ -231,7 +231,135 @@ symbol(unused, '') :- !.
 
 ### Move Validation and Execution:
 
-TBD.
+The game runs due to the predicate game_cycle/1 function and it only stops if any of the player wins.
+
+```prolog
+% game_cycle(+GameState)
+game_cycle(GameState) :-
+    \+game_over(GameState, Winner), !,
+    display_game(GameState),
+    show_winner(GameState, Winner).
+game_cycle(GameState) :-
+    display_game(GameState),
+    print_turn(GameState),
+    choose_move(GameState, Move),
+    move(GameState, Move, NewGameState), !,
+    game_cycle(NewGameState).
+```
+
+The player then needs to input 2 different coordinates due to the predicate choose_move/2, those coordinates being the origin position of a piece owned by that player and the destination position of that same piece (where the player wants to place that piece). Both those coordinates that the player inputs are evaluated by the predicate validate_move/3 to check if the move is valid or not.
+
+```prolog
+% validate_move(+GameState, ?CoordsOrigin, ?CoordsDestination)
+validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
+    valid_position(Row-Col),
+    valid_position(NewRow-NewCol),
+    is_empty(Board, NewRow-NewCol),
+    position(Board, Row-Col, PieceType),
+    player_color(Player, Color),
+    PieceType == Color,
+    diagonal_move(Row-Col, NewRow-NewCol, Dir),
+    Dir =:= 0,
+    noOwnGoal(NewRow, Color),
+    steps_in_diagonal_left(Board, Color, Row-Col, Steps),
+    Steps > 0, 
+    RowAux is (Row + Steps),
+    NewRow == RowAux, !. %Diagonal Down-Right
+validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
+    valid_position(Row-Col),
+    valid_position(NewRow-NewCol),
+    is_empty(Board, NewRow-NewCol),
+    position(Board, Row-Col, PieceType),
+    player_color(Player, Color),
+    PieceType == Color, 
+    diagonal_move(Row-Col, NewRow-NewCol, Dir),
+    Dir =:= 2,
+    noOwnGoal(NewRow, Color),
+    steps_in_diagonal_left(Board, Color, Row-Col, Steps),
+    Steps > 0, 
+    RowAux is (Row - Steps),
+    NewRow == RowAux, !. %Diagonal Up-Left
+validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
+    valid_position(Row-Col),
+    valid_position(NewRow-NewCol),
+    is_empty(Board, NewRow-NewCol),
+    position(Board, Row-Col, PieceType),
+    player_color(Player, Color),
+    PieceType == Color, 
+    diagonal_move(Row-Col, NewRow-NewCol, Dir),
+    Dir =:= 1,
+    noOwnGoal(NewRow, Color),
+    steps_in_diagonal_right(Board, Color, Row-Col, Steps),
+    Steps > 0, 
+    RowAux is (Row - Steps),
+    NewRow == RowAux, %Diagonal Up-Right
+    ColAux is (Col + Steps),
+    NewCol == ColAux, !. 
+validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
+    valid_position(Row-Col),
+    valid_position(NewRow-NewCol),
+    is_empty(Board, NewRow-NewCol),
+    position(Board, Row-Col, PieceType),
+    player_color(Player, Color),
+    PieceType == Color,
+    diagonal_move(Row-Col, NewRow-NewCol, Dir),
+    Dir =:= -1,
+    noOwnGoal(NewRow, Color),
+    steps_in_diagonal_right(Board, Color, Row-Col, Steps),
+    Steps > 0, 
+    RowAux is (Row + Steps),
+    NewRow == RowAux, %Diagonal Down-Left
+    ColAux is (Col - Steps),
+    NewCol == ColAux, !. 
+validate_move([Board,Player,_], Row-Col, NewRow-NewCol) :- 
+    valid_position(Row-Col),
+    valid_position(NewRow-NewCol),
+    is_empty(Board, NewRow-NewCol),
+    position(Board, Row-Col, PieceType),
+    player_color(Player, Color),
+    PieceType == Color, 
+    horizontal_move(Row-Col, NewRow-NewCol, Dir),
+    Dir > 0,
+    steps_in_row(Board, Color, Row, Steps),
+    Steps > 0, 
+    NewRow == Row, 
+    ColAux is (Col + Steps),
+    NewCol == ColAux, !.
+validate_move([Board,Player,_], Row-Col, NewRow-NewCol) :- 
+    valid_position(Row-Col),
+    valid_position(NewRow-NewCol),
+    is_empty(Board, NewRow-NewCol),
+    position(Board, Row-Col, PieceType),
+    player_color(Player, Color),
+    PieceType == Color, %Piece is of the same color as the player
+    horizontal_move(Row-Col, NewRow-NewCol, Dir),
+    Dir < 0,
+    steps_in_row(Board, Color, Row, Steps), 
+    Steps > 0, 
+    NewRow == Row, 
+    ColAux is (Col - Steps),
+    NewCol == ColAux, !. %Horizontal Left
+```
+
+A move is considered to be a valid one, when:
+- The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
+- The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
+- You cannot move the piece off the board or into a place already occupied by another piece.
+- You cannot move the piece into the opponent’s goal.
+
+After a selection of a valid move has occured, the positions of the pieces change on the board. And because of that, the GameState also needs to be updated. This is all possible due to the predicate move/3.
+
+```prolog
+% move(+GameState, +Move, -NewGameState)
+move(GameState, ColI-RowI-ColF-RowF, NewGameState):-                       
+    [Board, Player, TotalMoves] = GameState,
+    position(Board, RowI-ColI, Piece),
+    put_piece(Board, RowI-ColI, empty, NewBoard1),
+    put_piece(NewBoard1, RowF-ColF, Piece, NewBoard),
+    change_turn(Player, NewPlayer),
+    NewTotalMoves is TotalMoves + 1,
+    NewGameState = [NewBoard, NewPlayer, NewTotalMoves].
+```
 
 ### List of Valid Moves:
 
