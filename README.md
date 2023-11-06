@@ -1,5 +1,3 @@
-<style>body {text-align: left}</style>
-
 # 2023/2024 PFL Project - Differo
 
 For the 2023/2024 Functional and Logical Programming course, we chose to do the Differo board game.
