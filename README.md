@@ -460,7 +460,7 @@ move(GameState, ColI-RowI-ColF-RowF, NewGameState):-
 ### List of Valid Moves:
 
 The list of valid moves is possible to obtain due to the combination of multiple predicates, but the main ones being findall/3 and validate_move/3.
-We noticed that in rare cases the valid lists of moves can be empty, and in case that occurs, the game is instantly over and the winner is the player who has any valid move left to play.
+We noticed that in rare cases the list of valid moves can be empty, and in those cases, the game is instantly over and the winner is the player who has any valid move left to play.
 
 ```prolog
 % valid_moves(+GameState, +Player, -ListOfMoves)
@@ -505,7 +505,7 @@ TBD.
 ### Computer Plays:
 
 For the bots to decide which move to play, we opted to implement 2 different methods: the random and the greedy.
-On one hand, the random method, as the name implies, chooses a move randomly from the valid move list.
+On one hand, the random method, as the name implies, chooses a move randomly from the list of valid moves.
 
 ```prolog
 % choose_move(+GameState, +Player, +Level, -Move)
