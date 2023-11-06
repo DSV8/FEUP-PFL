@@ -7,6 +7,7 @@ Group: Differo_7
 ### Contribution
 
 This project was done by:
+
 - Gonçalo de Castilho Serra Alves Martins (up202108707)
 - Diogo Silveira Viana (up202108803)
 
@@ -39,10 +40,12 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 - You lose if you cannot move any of your pieces in your turn.
 
 ### Preparation
+
 - Place pieces in predetermined positions.
 - Choose your own color. White is the first turn.
 
 ### Play procedure
+
 - On your turn, you only move one of your pieces according to the following rules:
 - The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
 - The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
@@ -53,7 +56,11 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 
 ### Internal Game State Representation:
 
-TBD.
+The GameState argument is essential to every principal predicate of this implementation. It is formed by 3 elements:
+
+- Board, a square matrix of fixed size. It contais white and black atoms (that are the pieces), empty atoms (matrix cells where a piece could be placed), unused atoms (only included by symetrical reasons, those atoms cannot be used as a part of the board itself), wgoal and bgoal atoms (similair to empty atoms, except the player cannot place any of his pieces in the oponnents goal and if he places any of his pieces in his goal, then the game is over);
+- Player, contains the atoms player1 and player2, their function being to tell which player will play on the current turn (each player also has a color associated due to the predicate player_color/2, to assure that the player cannot play the oponnent's pieces)
+- TotalMoves, accumulator of the total number of moves during the game. Due to this value it is possible to calculate in how many moves a player winned the game.
 
 #### Initial Game State
 
@@ -101,15 +108,15 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
 ```prolog
 GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
           [unused, unused, unused, empty, black, black, black, black, empty],
-          [unused, unused, empty, empty, empty, black, empty, black, empty],
-          [unused, black, black, black, black, black, black, empty, empty],
-          [empty, empty, empty, white, empty, empty, empty, empty, empty],
-          [black, empty, white, white, white, white, white, white, unused],
-          [empty, white, empty, empty, empty, white, empty, unused, unused],
+          [unused, unused, white, black, empty, empty, empty, black, empty],
+          [unused, empty, black, black, black, black, black, black, black],
+          [empty, empty, empty, empty, empty, empty, empty, empty, empty],
+          [empty, white, white, white, white, white, white, empty, unused],
+          [empty, empty, empty, white, empty, white, empty, unused, unused],
           [empty, white, white, white, white, empty, unused, unused, unused],
           [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]],    % Board
           player1,                                                                 % Player
-          2                                                                        % TotalMoves
+          4                                                                        % TotalMoves
          )
 ```
 
@@ -122,30 +129,66 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
 
           [ ] - [B] - [B] - [B] - [B] - [ ]      
 
-       [ ] - [ ] - [ ] - [B] - [ ] - [B] - [ ]   
+       [W] - [B] - [ ] - [ ] - [ ] - [B] - [ ]   
 
-    [B] - [B] - [B] - [B] - [B] - [B] - [ ] - [ ] 
+    [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [B] 
 
- [ ] - [ ] - [ ] - [W] - [ ] - [ ] - [ ] - [ ] - [ ]
+ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
     
-    [B] - [ ] - [W] - [W] - [W] - [W] - [W] - [W]
+    [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]
     
-       [ ] - [W] - [ ] - [ ] - [ ] - [W] - [ ]
+       [ ] - [ ] - [ ] - [W] - [ ] - [W] - [ ]
 
           [ ] - [W] - [W] - [W] - [W] - [ ]
 
              [b] - [b] - [b] - [b] - [b]
 ```
 
-TBD.
-
 #### Final Game State
 
-TBD.
+```prolog
+GameState([unused, unused, unused, unused, white, wgoal, wgoal, wgoal, wgoal],
+          [unused, unused, unused, empty, black, empty, black, black, empty],
+          [unused, unused, empty, black, black, empty, empty, black, empty],
+          [unused, empty, black, black, black, black, black, black, black],
+          [empty, empty, empty, empty, empty, empty, empty, empty, empty],
+          [empty, white, white, white, white, white, white, empty, unused],
+          [empty, empty, empty, white, empty, white, empty, unused, unused],
+          [empty, white, white, white, white, empty, unused, unused, unused],
+          [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]],    % Board
+          player1,                                                                 % Player
+          7                                                                        % TotalMoves
+         )
+```
+
+```
++---------------------------------------------------+
+|                      DIFFERO                      |
++---------------------------------------------------+
+
+             [W] - [w] - [w] - [w] - [w]             
+
+          [ ] - [B] - [ ] - [B] - [B] - [ ]      
+
+       [ ] - [B] - [B] - [ ] - [ ] - [B] - [ ]   
+
+    [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [B] 
+
+ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
+    
+    [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]
+    
+       [ ] - [ ] - [ ] - [W] - [ ] - [W] - [ ]
+
+          [ ] - [W] - [W] - [W] - [W] - [ ]
+
+             [b] - [b] - [b] - [b] - [b]
+```
 
 ### Game State Visualization:
 
 Before starting the game, the user(s) is/are able to configure it. The parameters they are able to configure being:
+
 - 1 - Game mode (Human vs Human, Human vs Bot, Bot vs Bot);
 - 2 - Player's usernames;
 - 3 - Bot's difficulty levels.
@@ -260,17 +303,17 @@ print_board_aux([Row | Rest], N) :-
     print_board_aux(Rest, NextN).
 
 % print_row(+Row)
-print_row([]) :- nl, nl.
+print_row([]) :- nl, nl, !.
 print_row([Cell | [unused | _]]) :-
     Cell \= unused,
     print_cell(Cell),
-    print_row([]).
+    print_row([]), !.
 print_row([unused | Rest]) :-
-    print_row(Rest).
+    print_row(Rest), !.
 print_row([Cell | Rest]) :-
     print_cell(Cell),
     display_dash(Rest),
-    print_row(Rest).
+    print_row(Rest), !.
 
 % print_cell(+Piece)
 print_cell(Cell) :-
@@ -324,8 +367,7 @@ The game runs due to the predicate game_cycle/1 function and it only stops if an
 ```prolog
 % game_cycle(+GameState)
 game_cycle(GameState) :-
-    \+game_over(GameState, Winner), !,
-    display_game(GameState),
+    game_over(GameState, Winner), !,
     show_winner(GameState, Winner).
 game_cycle(GameState) :-
     display_game(GameState),
@@ -430,6 +472,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol) :-
 ```
 
 A move is considered to be a valid one, when:
+
 - The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
 - The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
 - You cannot move the piece off the board or into a place already occupied by another piece.
@@ -451,7 +494,25 @@ move(GameState, ColI-RowI-ColF-RowF, NewGameState):-
 
 ### List of Valid Moves:
 
-TBD.
+The list of valid moves is possible to obtain due to the combination of multiple predicates, but the main ones being findall/3 and validate_move/3.
+We noticed that in rare cases the list of valid moves can be empty, and in those cases, the game is instantly over and the winner is the player who has any valid move left to play.
+
+```prolog
+% valid_moves(+GameState, +Player, -ListOfMoves)
+valid_moves(GameState, Player, ListOfMoves):-
+    [Board,Player,_] = GameState,
+    player_color(Player, Color),
+    findall(RowI-ColI-RowF-ColF, (
+        between(0, 8, RowI),
+        between(0, 8, ColI),
+        position(Board, RowI-ColI, Piece),
+        Piece == Color,
+        numlist(0, 8, Rows),
+        numlist(0, 8, Cols),
+        member(RowF, Rows), member(ColF, Cols), 
+        validate_move([Board, Player,_], RowI-ColI, RowF-ColF)), ListOfMoves),
+    print_list_of_moves(ListOfMoves).
+```
 
 ### End of Game:
 
@@ -474,16 +535,28 @@ game_over([_,Player,_], Winner):- % Check if player has any valid moves left to 
 
 ### Game State Evaluation:
 
-TBD.
+(TODO)
 
 ### Computer Plays:
 
-TBD.
+For the bots to decide which move to play, we opted to implement 2 different methods: the random and the greedy.
+On one hand, the random method, as the name implies, chooses a move randomly from the list of valid moves.
+
+```prolog
+% choose_move(+GameState, +Player, +Level, -Move)
+choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
+    valid_moves(GameState, Player, ListOfMoves),
+    generate_random_from_list(ListOfMoves, Random),
+    nth0(Random, ListOfMoves, RowI-ColI-RowF-ColF).
+```
+
+On the other hand, the greedy method ... (TODO)
 
 ## Conclusions 
 
-TBD.
+(TODO)
 
 ## Bibliography
 The main references used were:
+
 - Game rules: https://boardgamegeek.com/boardgame/375056/differo
