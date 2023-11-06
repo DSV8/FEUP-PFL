@@ -1,68 +1,67 @@
 # 2023/2024 PFL Project - Differo
 
-For the 2023/2024 Functional and Logical Programming course, we chose to do the Differo board game.
+<div align="justify"><font size="3">For the 2023/2024 Functional and Logical Programming course, we chose to do the Differo board game.</font></div>
 
-Group: Differo_7
+<h2>Group: Differo_7</h2>
 
-### Contribution
-
-This project was done by:
+<div align="left"><font size="3">This project was done by:
 
 - Gonçalo de Castilho Serra Alves Martins (up202108707)
 - Diogo Silveira Viana (up202108803)
 
-Both students had a 50% collaboration in the project.
+Both students had a 50% collaboration in the project.</font></div>
 
-## Instalation and Execution
+<div align="left"><h2>Instalation and Execution</h2></div>
 
-To install and execute the game Differo, firstly, you will need to download PFL_TP1_T03_Differo7.zip and then proceed to unzip it. Secondly, you will need to use Sicstus to consult the main.pl file which is inside the src directory. Finally, the game starts with the predicate play/0:
+<div align="left"><font size="3">To install and execute the game Differo, firstly, you will need to download PFL_TP1_T03_Differo7.zip and then proceed to unzip it. Secondly, you will need to use Sicstus to consult the main.pl file which is inside the src directory. Finally, the game starts with the predicate play/0:</font></div>
 
 ```
 ? - play.
 ```
 
-## Description of the game
+<div align="left"><h2>Description of the game<h2></div>
 
-Differo is a game for two players. It is played with a hexagonal board and 13 black and white pieces each.
+<div align="left"><font size="3">Differo is a game for two players. It is played with a hexagonal board and 13 black and white pieces each.
 
 In this game, you win by calculating the difference in strength between your side and the enemy side, and by supporting your own side or blocking the opponent’s side to reach the goal.
 
-While steadily advancing your own piece, you often find yourself unable to stop the opponent’s pieces that is closing in. This is a fun abstract game with simple rules and thrills.
+While steadily advancing your own piece, you often find yourself unable to stop the opponent’s pieces that is closing in. This is a fun abstract game with simple rules and thrills.</font></div>
 
-### Components
+<div align="left"><h3>Components</h3></div>
 
-- 13 white and 13 black pieces each
-- Hexagonal board with 5 on a side
+- <div align="left"><font size="3">13 white and 13 black pieces each</font></div>
+- <div align="left"><font size="3">Hexagonal board with 5 on a side</font></div>
 
-### End condition
+<div align="left"><h3>End condition</h3></div>
 
-- You win when one of your piece reach the goal.
-- You lose if you cannot move any of your pieces in your turn.
+- <div align="left"><font size="3">You win when one of your piece reach the goal.</font></div>
+- <div align="left"><font size="3">You lose if you cannot move any of your pieces in your turn.</font></div>
 
-### Preparation
+<div align="left"><h3>Preparation</h3></div>
 
-- Place pieces in predetermined positions.
-- Choose your own color. White is the first turn.
+- <div align="left"><font size="3">Place pieces in predetermined positions.</font></div>
+- <div align="left"><font size="3">Choose your own color. White is the first turn.</font></div>
 
-### Play procedure
+<div align="left"><h3>Play procedure</h3></div>
 
-- On your turn, you only move one of your pieces according to the following rules:
-- The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
-- The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
-- You cannot move the piece off the board or into a place already occupied by another piece.
-- You cannot move the piece into the opponent’s goal.
+- <div align="left"><font size="3">On your turn, you only move one of your pieces according to the following rules:</font></div>
+- <div align="left"><font size="3">The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.</font></div>
+- <div align="left"><font size="3">The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.</font></div>
+- <div align="left"><font size="3">You cannot move the piece off the board or into a place already occupied by another piece.</font></div>
+- <div align="left"><font size="3">You cannot move the piece into the opponent’s goal.</font></div>
 
-## Game Logic
+<div align="left"><h2>Game Logic<h2></div>
 
-### Internal Game State Representation:
+<div align="left"><h3>Internal Game State Representation:</h3></div>
 
-The GameState argument is essential to every principal predicate of this implementation. It is formed by 3 elements:
+<div align="left"><font size="3">The GameState argument is essential to every principal predicate of this implementation. It is formed by 3 elements:</font></div>
 
 - Board, a square matrix of fixed size. It contais white and black atoms (that are the pieces), empty atoms (matrix cells where a piece could be placed), unused atoms (only included by symetrical reasons, those atoms cannot be used as a part of the board itself), wgoal and bgoal atoms (similair to empty atoms, except the player cannot place any of his pieces in the oponnents goal and if he places any of his pieces in his goal, then the game is over);
 - Player, contains the atoms player1 and player2, their function being to tell which player will play on the current turn (each player also has a color associated due to the predicate player_color/2, to assure that the player cannot play the oponnent's pieces)
 - TotalMoves, accumulator of the total number of moves during the game. Due to this value it is possible to calculate in how many moves a player winned the game.
+</font></div>
 
-#### Initial Game State
+<div align="left"><h4>Initial Game State</h4></div>
 
 ```prolog
 GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
@@ -103,7 +102,7 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
              [b] - [b] - [b] - [b] - [b]
 ```
 
-#### Intermidiate Game State
+<div align="left"><h4>Intermidiate Game State</h4></div>
 
 ```prolog
 GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
@@ -144,7 +143,7 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
              [b] - [b] - [b] - [b] - [b]
 ```
 
-#### Final Game State
+<div align="left"><h4>Final Game State</h4></div>
 
 ```prolog
 GameState([unused, unused, unused, unused, white, wgoal, wgoal, wgoal, wgoal],
@@ -185,15 +184,15 @@ GameState([unused, unused, unused, unused, white, wgoal, wgoal, wgoal, wgoal],
              [b] - [b] - [b] - [b] - [b]
 ```
 
-### Game State Visualization:
+<div align="left"><h3>Game State Visualization:</h3></div>
 
-Before starting the game, the user(s) is/are able to configure it. The parameters they are able to configure being:
+<div align="left"><font size="3">Before starting the game, the user(s) is/are able to configure it. The parameters they are able to configure being:
 
 - 1 - Game mode (Human vs Human, Human vs Bot, Bot vs Bot);
 - 2 - Player's usernames;
 - 3 - Bot's difficulty levels.
 
-This would be an example of a possible iteration:
+This would be an example of a possible iteration:</font></div>
 
 ```
 +---------------------------------------------------+
@@ -219,7 +218,7 @@ player1, please type your username: User
 Difficulty between 1 and 2: 2
 ```
 
-The validation of these choices is assured by the generic predicate get_option/4, which is reusable because of the Context variable.
+<div align="left"><font size="3">The validation of these choices is assured by the generic predicate get_option/4, which is reusable because of the Context variable.</font></div>
 
 ```prolog
 % get_option(+Min, +Max, +Context, -Value)
@@ -230,7 +229,7 @@ get_option(Min, Max, Context, Value):-
     between(Min, Max, Value), !.
 ```
 
-In the second choice, the username of each user is dynamically placed in the fact base (so it could be accessed through any other predicate) through the name_of/2 predicate.
+<div align="left"><font size="3">In the second choice, the username of each user is dynamically placed in the fact base (so it could be accessed through any other predicate) through the name_of/2 predicate.</font></div>
 
 ```prolog
 % get_username(+Player)
@@ -245,7 +244,7 @@ get_username(Player):-
 :- dynamic name_of/2.
 ```
 
-In the third choice, the difficulty of each bot is dinamically placed in the fact base through teh difficulty/2 predicate.
+<div align="left"><font size="3">In the third choice, the difficulty of each bot is dinamically placed in the fact base through teh difficulty/2 predicate.</font></div>
 
 ```prolog
 % choose_difficulty(+Bot)
@@ -265,7 +264,7 @@ choose_difficulty(Bot) :-
 :- dynamic difficulty/2.
 ```
 
-After making all the choices, the board is finally initialized through the predicate initial_state/2. Since the board is hexagonal we decided to make the boarrd size fixed as 9x9 matrix.
+<div align="left"><font size="3">After making all the choices, the board is finally initialized through the predicate initial_state/2. Since the board is hexagonal we decided to make the boarrd size fixed as 9x9 matrix.</font></div>
 
 ```prolog
 % configuration(-GameState)
@@ -276,7 +275,7 @@ configurations([Board, Player, 0]):-
     initial_state(9, [Board, Player, 0]).
 ```
 
-Once the GameState is initialized, the board is displayed through the predicate print_board/1 (with the help of a few other auwiliar predicates) in each iteration of the game cycle.
+<div align="left"><font size="3">Once the GameState is initialized, the board is displayed through the predicate print_board/1 (with the help of a few other auwiliar predicates) in each iteration of the game cycle.</font></div>
 
 ```prolog
 % print_board(+Board)
@@ -340,7 +339,7 @@ display_dash([_|_]) :-
 display_dash([]).
 ```
 
-There was also the need to create the predicates piece_info/3 and symbol/2 which translate the context of game state without further dependencies.
+<div align="left"><font size="3">There was also the need to create the predicates piece_info/3 and symbol/2 which translate the context of game state without further dependencies.</font></div>
 
 ```prolog
 % piece_info(?Type, ?Player, ?Piece)
@@ -360,9 +359,9 @@ symbol(wgoal, 'w') :- !.
 symbol(unused, '') :- !.
 ```
 
-### Move Validation and Execution:
+<div align="left"><h3>Move Validation and Execution:</h3></div>
 
-The game runs due to the predicate game_cycle/1 function and it only stops if any of the player wins.
+<div align="left"><font size="3">The game runs due to the predicate game_cycle/1 function and it only stops if any of the player wins.</font></div>
 
 ```prolog
 % game_cycle(+GameState)
@@ -377,7 +376,7 @@ game_cycle(GameState) :-
     game_cycle(NewGameState).
 ```
 
-The player then needs to input 2 different coordinates due to the predicate choose_move/2, those coordinates being the origin position of a piece owned by that player and the destination position of that same piece (where the player wants to place that piece). Both those coordinates that the player inputs are evaluated by the predicate validate_move/3 to check if the move is valid or not.
+<div align="left"><font size="3">The player then needs to input 2 different coordinates due to the predicate choose_move/2, those coordinates being the origin position of a piece owned by that player and the destination position of that same piece (where the player wants to place that piece). Both those coordinates that the player inputs are evaluated by the predicate validate_move/3 to check if the move is valid or not.</font></div>
 
 ```prolog
 % validate_move(+GameState, ?CoordsOrigin, ?CoordsDestination)
@@ -471,14 +470,14 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol) :-
     NewCol == ColAux, !. %Horizontal Left
 ```
 
-A move is considered to be a valid one, when:
+<div align="left"><font size="3">A move is considered to be a valid one, when:
 
 - The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
 - The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
 - You cannot move the piece off the board or into a place already occupied by another piece.
 - You cannot move the piece into the opponent’s goal.
 
-After a selection of a valid move has occured, the positions of the pieces change on the board. And because of that, the GameState also needs to be updated. This is all possible due to the predicate move/3.
+After a selection of a valid move has occured, the positions of the pieces change on the board. And because of that, the GameState also needs to be updated. This is all possible due to the predicate move/3.</font></div>
 
 ```prolog
 % move(+GameState, +Move, -NewGameState)
@@ -492,10 +491,10 @@ move(GameState, ColI-RowI-ColF-RowF, NewGameState):-
     NewGameState = [NewBoard, NewPlayer, NewTotalMoves].
 ```
 
-### List of Valid Moves:
+<div align="left"><h3>List of Valid Moves:</h3></div>
 
-The list of valid moves is possible to obtain due to the combination of multiple predicates, but the main ones being findall/3 and validate_move/3.
-We noticed that in rare cases the list of valid moves can be empty, and in those cases, the game is instantly over and the winner is the player who has any valid move left to play.
+<div align="left"><font size="3">The list of valid moves is possible to obtain due to the combination of multiple predicates, but the main ones being findall/3 and validate_move/3.
+We noticed that in rare cases the list of valid moves can be empty, and in those cases, the game is instantly over and the winner is the player who has any valid move left to play.</font></div>
 
 ```prolog
 % valid_moves(+GameState, +Player, -ListOfMoves)
@@ -514,9 +513,9 @@ valid_moves(GameState, Player, ListOfMoves):-
     print_list_of_moves(ListOfMoves).
 ```
 
-### End of Game:
+<div align="left"><h3>End of Game:</h3></div>
 
-In case any piece of a player reaches the opponent's goal or if any of the players has no valid moves left on their turn, the game ends and a winner is announced.
+<div align="left"><font size="3">In case any piece of a player reaches the opponent's goal or if any of the players has no valid moves left on their turn, the game ends and a winner is announced.</font></div>
 
 ```prolog
 % game_over(+GameState, -Winner)
@@ -533,11 +532,11 @@ game_over([_,Player,_], Winner):- % Check if player has any valid moves left to 
     length(ListOfMoves, 0).
 ```
 
-### Game State Evaluation:
+<div align="left"><h3>Game State Evaluation:</h3></div>
 
-The board is evaluated according to the position of each peace due to the predicate value/4. This predicate takes into consideration how close the pieces are to the opposite sided goal, giving them more value, the closer they can get a piece to the opposite sided goal.
+<div align="left"><font size="3">The board is evaluated according to the position of each peace due to the predicate value/4. This predicate takes into consideration how close the pieces are to the opposite sided goal, giving them more value, the closer they can get a piece to the opposite sided goal.
 Note that the predicate does not give an exact value.
-This predicate is also used in the greedy algorithm, in the game mode against a bot, in order to discover the move that will bring the bot's piece closer to the opposite sided goal.
+This predicate is also used in the greedy algorithm, in the game mode against a bot, in order to discover the move that will bring the bot's piece closer to the opposite sided goal.</font></div>
 
 ```prolog
 % value(+GameState, +Player, +ListOfMoves, -Move)
@@ -546,10 +545,10 @@ value(GameState, Player, ListOfMoves, RowI-ColI-RowF-ColF) :-
     bestBotMove(Color, ListOfMoves, RowI-ColI-RowF-ColF).
 ```
 
-### Computer Plays:
+<div align="left"><h3>Computer Plays:</h3></div>
 
-For the bots to decide which move to play, we opted to implement 2 different methods: the random and the greedy.
-On one hand, the random method, as the name implies, chooses a move randomly from the list of valid moves.
+<div align="left"><font size="3">For the bots to decide which move to play, we opted to implement 2 different methods: the random and the greedy.
+On one hand, the random method, as the name implies, chooses a move randomly from the list of valid moves.</font></div>
 
 ```prolog
 % choose_move(+GameState, +Player, +Level, -Move)
@@ -566,7 +565,7 @@ generate_random_from_list(List, RandomNumber) :-
     random(1, ListLength, RandomNumber).
 ```
 
-On the other hand, the greedy method chooses the first element of a list of moves sorted by value. To make this possible, we had to use a few predicates, but the main one being bestBotMove/3.
+<div align="left"><font size="3">On the other hand, the greedy method chooses the first element of a list of moves sorted by value. To make this possible, we had to use a few predicates, but the main one being bestBotMove/3.</font></div>
 
 ```prolog
 % choose_move(+GameState, +Player, +Level, -Move)
@@ -593,14 +592,16 @@ compareBlackMoves(RowI1-ColI1-RowF1-ColF1, RowI2-ColI2-RowF2-ColF2) :-
     RowF2 =< RowF1.
 ```
 
-## Conclusions 
+<div align="left"><h2>Conclusions</h2></div>
 
-The game Differo was successfully implemented in prolog. It has 3 game modes: Player vs Player, Player vs Bot and Bot vs Bot. Note that the bots have 2 different difficulties available. Every iteration is solidly built, validating the game state and every user input at any given point.
+<div align="left"><font size="3">The game Differo was successfully implemented in prolog. It has 3 game modes: Player vs Player, Player vs Bot and Bot vs Bot. Note that the bots have 2 different difficulties available. Every iteration is solidly built, validating the game state and every user input at any given point.
 We considered the toughest part of this project to be the unusual board design, which gave us a hard time implementing the game logic.
-Nevertheless, this project allowed us to consolidate the knowledge we acquired throughout our theoretical and practical classes.
+Nevertheless, this project allowed us to consolidate the knowledge we acquired throughout our theoretical and practical classes.</font></div>
 
-## Bibliography
-The main references used were:
+<div align="left"><h2>Bibliography</h2></div>
+
+<div align="left"><font size="3">The main references used were:
 
 - Game rules: https://boardgamegeek.com/boardgame/375056/differo
 - Sicstus prolog reference: https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/
+</font></div>
