@@ -1,6 +1,7 @@
 :- use_module(library(lists)).
 :- use_module(library(random)).
 :- use_module(library(sets)).
+:- use_module(library(samsort)).
 :- consult(configurations).
 :- consult(board).
 :- consult(utils).
@@ -338,6 +339,21 @@ valid_moves(GameState, Player, ListOfMoves):-
         member(RowF, Rows), member(ColF, Cols), 
         validate_move([Board, Player,_], RowI-ColI, RowF-ColF)), ListOfMoves).
 
+% bestBotMove(+Color, +ListOfMoves, -bestMove)
+% Sort the ListOfMoves to obtain best move
+bestBotMove(white, ListOfMoves, RowI-ColI-RowF-ColF) :-
+    samsort(compareWhiteMoves, ListOfMoves, SortedList),
+    nth0(0, SortedList, RowI-ColI-RowF-ColF).
+bestBotMove(black, ListOfMoves, RowI-ColI-RowF-ColF) :-
+    samsort(compareBlackMoves, ListOfMoves, SortedList),
+    nth0(0, SortedList, RowI-ColI-RowF-ColF).
+
+% value(+GameState, +Player, +ListOfMoves, -Move)
+% Evaluates the best move for the greedy bot
+value(GameState, Player, ListOfMoves, RowI-ColI-RowF-ColF) :-
+    player_color(Player, Color),
+    bestBotMove(Color, ListOfMoves, RowI-ColI-RowF-ColF).
+
 % choose_move(+GameState, +Player, +Level, -Move)
 % Choose move for human player
 choose_move([Board,Player,TotalMoves], NewColI-NewRowI-NewColF-NewRowF):-
@@ -361,7 +377,13 @@ choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
     valid_moves(GameState, Player, ListOfMoves),
     print_list_of_moves(ListOfMoves, Player),
     generate_random_from_list(ListOfMoves, Random),
-    nth0(Random, ListOfMoves, RowI-ColI-RowF-ColF).
+    RandomAux is Random - 1,
+    nth0(RandomAux, ListOfMoves, RowI-ColI-RowF-ColF).
+choose_move(GameState, Player, 2, ColI-RowI-ColF-RowF) :-
+    valid_moves(GameState, Player, ListOfMoves),
+    print_list_of_moves(ListOfMoves, Player),
+    value(GameState, Player, ListOfMoves, RowI-ColI-RowF-ColF),
+    write(RowI-ColI-RowF-ColF), nl.
 
 % play/0
 % Starts the game and clears data when it ends 

@@ -102,3 +102,13 @@ init_random_state :-
 generate_random_from_list(List, RandomNumber) :-
     length(List, ListLength),
     random(1, ListLength, RandomNumber).
+
+% compareWhiteMoves(+Move1, +Move2)
+% Compares two moves and returns the one which is closest to the opposite goal
+compareWhiteMoves(RowI1-ColI1-RowF1-ColF1, RowI2-ColI2-RowF2-ColF2) :-
+    RowF2 >= RowF1.
+
+% compareBlackMoves(+Move1, +Move2)
+% Compares two moves and returns the one which is closest to opposite goal
+compareBlackMoves(RowI1-ColI1-RowF1-ColF1, RowI2-ColI2-RowF2-ColF2) :-
+    RowF2 =< RowF1.
