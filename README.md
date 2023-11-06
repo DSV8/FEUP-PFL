@@ -459,7 +459,25 @@ move(GameState, ColI-RowI-ColF-RowF, NewGameState):-
 
 ### List of Valid Moves:
 
-TBD.
+The list of valid moves is possible to obtain due to the combination of multiple predicates, but the main ones being findall/3 and validate_move/3.
+We noticed that in rare cases the valid lists of moves can be empty, and in case that occurs, the game is instantly over and the winner is the player who has any valid move left to play.
+
+```prolog
+% valid_moves(+GameState, +Player, -ListOfMoves)
+valid_moves(GameState, Player, ListOfMoves):-
+    [Board,Player,_] = GameState,
+    player_color(Player, Color),
+    findall(RowI-ColI-RowF-ColF, (
+        between(0, 8, RowI),
+        between(0, 8, ColI),
+        position(Board, RowI-ColI, Piece),
+        Piece == Color,
+        numlist(0, 8, Rows),
+        numlist(0, 8, Cols),
+        member(RowF, Rows), member(ColF, Cols), 
+        validate_move([Board, Player,_], RowI-ColI, RowF-ColF)), ListOfMoves),
+    print_list_of_moves(ListOfMoves).
+```
 
 ### End of Game:
 
