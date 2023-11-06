@@ -98,6 +98,45 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
 
 #### Intermidiate Game State
 
+```prolog
+GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
+          [unused, unused, unused, empty, black, black, black, black, empty],
+          [unused, unused, empty, empty, empty, black, empty, black, empty],
+          [unused, black, black, black, black, black, black, empty, empty],
+          [empty, empty, empty, white, empty, empty, empty, empty, empty],
+          [black, empty, white, white, white, white, white, white, unused],
+          [empty, white, empty, empty, empty, white, empty, unused, unused],
+          [empty, white, white, white, white, empty, unused, unused, unused],
+          [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]],    % Board
+          player1,                                                                 % Player
+          2                                                                        % TotalMoves
+         )
+```
+
+```
++---------------------------------------------------+
+|                      DIFFERO                      |
++---------------------------------------------------+
+
+             [w] - [w] - [w] - [w] - [w]             
+
+          [ ] - [B] - [B] - [B] - [B] - [ ]      
+
+       [ ] - [ ] - [ ] - [B] - [ ] - [B] - [ ]   
+
+    [B] - [B] - [B] - [B] - [B] - [B] - [ ] - [ ] 
+
+ [ ] - [ ] - [ ] - [W] - [ ] - [ ] - [ ] - [ ] - [ ]
+    
+    [B] - [ ] - [W] - [W] - [W] - [W] - [W] - [W]
+    
+       [ ] - [W] - [ ] - [ ] - [ ] - [W] - [ ]
+
+          [ ] - [W] - [W] - [W] - [W] - [ ]
+
+             [b] - [b] - [b] - [b] - [b]
+```
+
 TBD.
 
 #### Final Game State
