@@ -62,8 +62,6 @@ The GameState argument is essential to every principal predicate of this impleme
 - Player, contains the atoms player1 and player2, their function being to tell which player will play on the current turn (each player also has a color associated due to the predicate player_color/2, to assure that the player cannot play the oponnent's pieces)
 - TotalMoves, accumulator of the total number of moves during the game. Due to this value it is possible to calculate in how many moves a player winned the game.
 
-TBD.
-
 #### Initial Game State
 
 ```prolog
@@ -110,11 +108,11 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
 ```prolog
 GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
           [unused, unused, unused, empty, black, black, black, black, empty],
-          [unused, unused, empty, empty, empty, black, empty, black, empty],
-          [unused, black, black, black, black, black, black, empty, empty],
-          [empty, empty, empty, white, empty, empty, empty, empty, empty],
-          [black, empty, white, white, white, white, white, white, unused],
-          [empty, white, empty, empty, empty, white, empty, unused, unused],
+          [unused, unused, white, black, empty, empty, empty, black, empty],
+          [unused, empty, black, black, black, black, black, black, black],
+          [empty, empty, empty, empty, empty, empty, empty, empty, empty],
+          [empty, white, white, white, white, white, white, empty, unused],
+          [empty, empty, empty, white, empty, white, empty, unused, unused],
           [empty, white, white, white, white, empty, unused, unused, unused],
           [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]],    % Board
           player1,                                                                 % Player
@@ -131,15 +129,15 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
 
           [ ] - [B] - [B] - [B] - [B] - [ ]      
 
-       [ ] - [ ] - [ ] - [B] - [ ] - [B] - [ ]   
+       [W] - [B] - [ ] - [ ] - [ ] - [B] - [ ]   
 
-    [B] - [B] - [B] - [B] - [B] - [B] - [ ] - [ ] 
+    [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [B] 
 
- [ ] - [ ] - [ ] - [W] - [ ] - [ ] - [ ] - [ ] - [ ]
+ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
     
-    [B] - [ ] - [W] - [W] - [W] - [W] - [W] - [W]
+    [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]
     
-       [ ] - [W] - [ ] - [ ] - [ ] - [W] - [ ]
+       [ ] - [ ] - [ ] - [W] - [ ] - [W] - [ ]
 
           [ ] - [W] - [W] - [W] - [W] - [ ]
 
@@ -148,7 +146,44 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
 
 #### Final Game State
 
-TBD.
+```prolog
+GameState([unused, unused, unused, unused, white, wgoal, wgoal, wgoal, wgoal],
+          [unused, unused, unused, empty, black, empty, black, black, empty],
+          [unused, unused, empty, black, black, empty, empty, black, empty],
+          [unused, empty, black, black, black, black, black, black, black],
+          [empty, empty, empty, empty, empty, empty, empty, empty, empty],
+          [empty, white, white, white, white, white, white, empty, unused],
+          [empty, empty, empty, white, empty, white, empty, unused, unused],
+          [empty, white, white, white, white, empty, unused, unused, unused],
+          [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]],    % Board
+          player1,                                                                 % Player
+          7                                                                        % TotalMoves
+         )
+```
+
+```
++---------------------------------------------------+
+|                      DIFFERO                      |
++---------------------------------------------------+
+
+             [W] - [w] - [w] - [w] - [w]             
+
+          [ ] - [B] - [ ] - [B] - [B] - [ ]      
+
+       [ ] - [B] - [B] - [ ] - [ ] - [B] - [ ]   
+
+    [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [B] 
+
+ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
+    
+    [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]
+    
+       [ ] - [ ] - [ ] - [W] - [ ] - [W] - [ ]
+
+          [ ] - [W] - [W] - [W] - [W] - [ ]
+
+             [b] - [b] - [b] - [b] - [b]
+```
 
 ### Game State Visualization:
 
@@ -500,7 +535,7 @@ game_over([_,Player,_], Winner):- % Check if player has any valid moves left to 
 
 ### Game State Evaluation:
 
-TBD.
+(TODO)
 
 ### Computer Plays:
 
@@ -515,13 +550,11 @@ choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
     nth0(Random, ListOfMoves, RowI-ColI-RowF-ColF).
 ```
 
-On the other hand, the greedy method ...
-
-TBD.
+On the other hand, the greedy method ... (TODO)
 
 ## Conclusions 
 
-TBD.
+(TODO)
 
 ## Bibliography
 The main references used were:
