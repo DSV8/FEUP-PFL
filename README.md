@@ -332,8 +332,7 @@ The game runs due to the predicate game_cycle/1 function and it only stops if an
 ```prolog
 % game_cycle(+GameState)
 game_cycle(GameState) :-
-    \+game_over(GameState, Winner), !,
-    display_game(GameState),
+    game_over(GameState, Winner), !,
     show_winner(GameState, Winner).
 game_cycle(GameState) :-
     display_game(GameState),
