@@ -49,7 +49,7 @@ horizontal_move(RowI-ColI, RowF-ColF, Dir) :-
 % Checks if the position is empty
 is_empty(Board, Row-Col):-
     position(Board, Row-Col, Value),
-    Value == empty.
+    (Value == empty; Value == wgoal; Value == bgoal).
 
 % count_pieces_on_line(+Board, +Line, +Piece, -Count)
 % Counts the number of pieces of the given type on the given line
@@ -250,7 +250,7 @@ winner_moves(Moves, WinnerMoves):-
 
 % show_winner(+GameState, +Winner)
 % Prints the winner of the game and number of moves they made
-show_winner([_,_,_,TotalMoves], Winner):-
+show_winner([_,_,TotalMoves], Winner):-
     name_of(Winner, Name),
     winner_moves(TotalMoves, WinnerMoves),
     format('Winner is ~a with ~d moves!\n', [Name, WinnerMoves]).
@@ -261,18 +261,20 @@ game_over([Board, _, _], Winner):- % Check if Row 1 or Row 9 has any opposite co
     count_pieces_on_line(Board, 0, white, Count1),
     count_pieces_on_line(Board, 8, black, Count2),
     (   Count1 > 0
-    ->  Winner is player1
+    ->  Winner = player1
     ;   Count2 > 0
-    ->  Winner is player2
+    ->  Winner = player2
     ).
 game_over([Board, Player, _], Winner):- % Check if player has any valid moves left to play.
-    valid_moves([Board, Player, _], Player, ListOfMoves),
-    length(ListOfMoves, 0).
+    valid_moves([Board, Player, _], Player, ListOfMoves), !,
+    length(ListOfMoves, 0),
+    change_turn(Player, Winner).
 
 % game_cycle(+GameState)
 % Loop that keeps the game running
 game_cycle(GameState) :-
     game_over(GameState, Winner), !,
+    display_game(GameState),
     show_winner(GameState, Winner).
 game_cycle(GameState) :-
     display_game(GameState),
@@ -304,16 +306,20 @@ move(GameState, ColI-RowI-ColF-RowF, NewGameState):-
     NewTotalMoves is TotalMoves + 1,
     NewGameState = [NewBoard, NewPlayer, NewTotalMoves].
 
-% print_list_of_moves(+ListOfMoves)
+% print_list_of_moves(+ListOfMoves, +Player)
 % Prints the list of every valid move for a player
-print_list_of_moves(ListOfMoves):-
-    write('Here are the following available moves:'),
+print_list_of_moves(ListOfMoves, Player):-
+    write('Here are the following moves for '), write(Player), write(':'), nl,
     nl,
     print_list_of_moves_aux(ListOfMoves).
 
-print_list_of_moves_aux([]).
+print_list_of_moves_aux([]):- nl.
 print_list_of_moves_aux([RowI-ColI-RowF-ColF | Rest]):-
-    write(RowI-ColI), write(' to '), write(RowF-ColF),
+    RowAuxI is RowI + 1,
+    RowAuxF is RowF + 1,
+    ColAuxI is ColI + 1,
+    ColAuxF is ColF + 1,
+    write(RowAuxI-ColAuxI), write(' to '), write(RowAuxF-ColAuxF),
     nl,
     print_list_of_moves_aux(Rest).
 
@@ -330,13 +336,14 @@ valid_moves(GameState, Player, ListOfMoves):-
         numlist(0, 8, Rows),
         numlist(0, 8, Cols),
         member(RowF, Rows), member(ColF, Cols), 
-        validate_move([Board, Player,_], RowI-ColI, RowF-ColF)), ListOfMoves),
-    print_list_of_moves(ListOfMoves).
+        validate_move([Board, Player,_], RowI-ColI, RowF-ColF)), ListOfMoves).
 
 % choose_move(+GameState, +Player, +Level, -Move)
 % Choose move for human player
 choose_move([Board,Player,TotalMoves], NewColI-NewRowI-NewColF-NewRowF):-
-    \+difficulty(Player, _),                  
+    \+difficulty(Player, _),    
+    valid_moves([Board, Player, TotalMoves], Player, ListOfMoves),
+    print_list_of_moves(ListOfMoves, Player),              
     repeat,
     length(Board, Size),
     get_move(Size, ColI-RowI-ColF-RowF),
@@ -352,12 +359,13 @@ choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
     choose_move([Board, Player, TotalMoves], Player, Level, ColI-RowI-ColF-RowF), !.
 choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
     valid_moves(GameState, Player, ListOfMoves),
+    print_list_of_moves(ListOfMoves, Player),
     generate_random_from_list(ListOfMoves, Random),
     nth0(Random, ListOfMoves, RowI-ColI-RowF-ColF).
 
 % play/0
 % Starts the game and clears data when it ends 
 play :-
+    clear_data,
     configurations(GameState), !,
-    game_cycle(GameState),
-    clear_data.
+    game_cycle(GameState).
