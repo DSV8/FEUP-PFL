@@ -7,6 +7,7 @@ Group: Differo_7
 ### Contribution
 
 This project was done by:
+
 - Gonçalo de Castilho Serra Alves Martins (up202108707)
 - Diogo Silveira Viana (up202108803)
 
@@ -39,10 +40,12 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 - You lose if you cannot move any of your pieces in your turn.
 
 ### Preparation
+
 - Place pieces in predetermined positions.
 - Choose your own color. White is the first turn.
 
 ### Play procedure
+
 - On your turn, you only move one of your pieces according to the following rules:
 - The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
 - The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
@@ -52,6 +55,12 @@ While steadily advancing your own piece, you often find yourself unable to stop 
 ## Game Logic
 
 ### Internal Game State Representation:
+
+The GameState argument is essential to every principal predicate of this implementation. It is formed by 3 elements:
+
+- Board, a square matrix of fixed size. It contais white and black atoms (that are the pieces), empty atoms (matrix cells where a piece could be placed), unused atoms (only included by symetrical reasons, those atoms cannot be used as a part of the board itself), wgoal and bgoal atoms (similair to empty atoms, except the player cannot place any of his pieces in the oponnents goal and if he places any of his pieces in his goal, then the game is over);
+- Player, contains the atoms player1 and player2, their function being to tell which player will play on the current turn (each player also has a color associated due to the predicate player_color/2, to assure that the player cannot play the oponnent's pieces)
+- TotalMoves, accumulator of the total number of moves during the game. Due to this value it is possible to calculate in how many moves a player winned the game.
 
 TBD.
 
@@ -109,7 +118,7 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
           [empty, white, white, white, white, empty, unused, unused, unused],
           [bgoal, bgoal, bgoal, bgoal, bgoal, unused, unused, unused, unused]],    % Board
           player1,                                                                 % Player
-          2                                                                        % TotalMoves
+          4                                                                        % TotalMoves
          )
 ```
 
@@ -137,8 +146,6 @@ GameState([unused, unused, unused, unused, wgoal, wgoal, wgoal, wgoal, wgoal],
              [b] - [b] - [b] - [b] - [b]
 ```
 
-TBD.
-
 #### Final Game State
 
 TBD.
@@ -146,6 +153,7 @@ TBD.
 ### Game State Visualization:
 
 Before starting the game, the user(s) is/are able to configure it. The parameters they are able to configure being:
+
 - 1 - Game mode (Human vs Human, Human vs Bot, Bot vs Bot);
 - 2 - Player's usernames;
 - 3 - Bot's difficulty levels.
@@ -430,6 +438,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol) :-
 ```
 
 A move is considered to be a valid one, when:
+
 - The piece moves on a line. The piece may jump over any number of pieces at once, either your own and your opponent’s.
 - The number of steps to move the piece is always (number of your pieces) − (number of your opponent’s pieces) on the line to be moved. If this value is less than or equal to 0, the piece cannot move on the line.
 - You cannot move the piece off the board or into a place already occupied by another piece.
@@ -486,4 +495,5 @@ TBD.
 
 ## Bibliography
 The main references used were:
+
 - Game rules: https://boardgamegeek.com/boardgame/375056/differo
