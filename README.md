@@ -487,6 +487,19 @@ TBD.
 
 ### Computer Plays:
 
+For the bots to decide which move to play, we opted to implement 2 different methods: the random and the greedy.
+On one hand, the random method, as the name implies, chooses a move randomly from the valid move list.
+
+```prolog
+% choose_move(+GameState, +Player, +Level, -Move)
+choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
+    valid_moves(GameState, Player, ListOfMoves),
+    generate_random_from_list(ListOfMoves, Random),
+    nth0(Random, ListOfMoves, RowI-ColI-RowF-ColF).
+```
+
+On the other hand, the greedy method ...
+
 TBD.
 
 ## Conclusions 
