@@ -535,7 +535,16 @@ game_over([_,Player,_], Winner):- % Check if player has any valid moves left to 
 
 ### Game State Evaluation:
 
-(TODO)
+The board is evaluated according to the position of each peace due to the predicate value/4. This predicate takes into consideration how close the pieces are to the opposite sided goal, giving them more value, the closer they can get a piece to the opposite sided goal.
+Note that the predicate does not give an exact value.
+This predicate is also used in the greedy algorithm, in the game mode against a bot, in order to discover the move that will bring the bot's piece closer to the opposite sided goal.
+
+```prolog
+% value(+GameState, +Player, +ListOfMoves, -Move)
+value(GameState, Player, ListOfMoves, RowI-ColI-RowF-ColF) :-
+    player_color(Player, Color),
+    bestBotMove(Color, ListOfMoves, RowI-ColI-RowF-ColF).
+```
 
 ### Computer Plays:
 
@@ -546,17 +555,52 @@ On one hand, the random method, as the name implies, chooses a move randomly fro
 % choose_move(+GameState, +Player, +Level, -Move)
 choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
     valid_moves(GameState, Player, ListOfMoves),
+    print_list_of_moves(ListOfMoves, Player),
     generate_random_from_list(ListOfMoves, Random),
-    nth0(Random, ListOfMoves, RowI-ColI-RowF-ColF).
+    RandomAux is Random - 1,
+    nth0(RandomAux, ListOfMoves, RowI-ColI-RowF-ColF).
+
+% generate_random_from_list(+List, -RandomNumber)
+generate_random_from_list(List, RandomNumber) :-
+    length(List, ListLength),
+    random(1, ListLength, RandomNumber).
 ```
 
-On the other hand, the greedy method ... (TODO)
+On the other hand, the greedy method chooses the first element of a list of moves sorted by value. To make this possible, we had to use a few predicates, but the main one being bestBotMove/3.
+
+```prolog
+% choose_move(+GameState, +Player, +Level, -Move)
+choose_move(GameState, Player, 2, ColI-RowI-ColF-RowF) :-
+    valid_moves(GameState, Player, ListOfMoves),
+    print_list_of_moves(ListOfMoves, Player),
+    value(GameState, Player, ListOfMoves, RowI-ColI-RowF-ColF),
+    write(RowI-ColI-RowF-ColF), nl.
+
+% bestBotMove(+Color, +ListOfMoves, -bestMove)
+bestBotMove(white, ListOfMoves, RowI-ColI-RowF-ColF) :-
+    samsort(compareWhiteMoves, ListOfMoves, SortedList),
+    nth0(0, SortedList, RowI-ColI-RowF-ColF).
+bestBotMove(black, ListOfMoves, RowI-ColI-RowF-ColF) :-
+    samsort(compareBlackMoves, ListOfMoves, SortedList),
+    nth0(0, SortedList, RowI-ColI-RowF-ColF).
+
+% compareWhiteMoves(+Move1, +Move2)
+compareWhiteMoves(RowI1-ColI1-RowF1-ColF1, RowI2-ColI2-RowF2-ColF2) :-
+    RowF2 >= RowF1.
+
+% compareBlackMoves(+Move1, +Move2)
+compareBlackMoves(RowI1-ColI1-RowF1-ColF1, RowI2-ColI2-RowF2-ColF2) :-
+    RowF2 =< RowF1.
+```
 
 ## Conclusions 
 
-(TODO)
+The game Differo was successfully implemented in prolog. It has 3 game modes: Player vs Player, Player vs Bot and Bot vs Bot. Note that the bots have 2 different difficulties available. Every iteration is solidly built, validating the game state and every user input at any given point.
+We considered the toughest part of this project to be the unusual board design, which gave us a hard time implementing the game logic.
+Nevertheless, this project allowed us to consolidate the knowledge we acquired throughout our theoretical and practical classes.
 
 ## Bibliography
 The main references used were:
 
 - Game rules: https://boardgamegeek.com/boardgame/375056/differo
+- Sicstus prolog reference: https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/
