@@ -268,17 +268,17 @@ print_board_aux([Row | Rest], N) :-
     print_board_aux(Rest, NextN).
 
 % print_row(+Row)
-print_row([]) :- nl, nl.
+print_row([]) :- nl, nl, !.
 print_row([Cell | [unused | _]]) :-
     Cell \= unused,
     print_cell(Cell),
-    print_row([]).
+    print_row([]), !.
 print_row([unused | Rest]) :-
-    print_row(Rest).
+    print_row(Rest), !.
 print_row([Cell | Rest]) :-
     print_cell(Cell),
     display_dash(Rest),
-    print_row(Rest).
+    print_row(Rest), !.
 
 % print_cell(+Piece)
 print_cell(Cell) :-
