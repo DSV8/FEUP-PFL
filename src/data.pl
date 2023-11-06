@@ -67,17 +67,17 @@ display_dash([]).
 
 % print_row(+Row)
 % Predicate to print a row of cells
-print_row([]) :- nl, nl.
+print_row([]) :- nl, nl, !.
 print_row([Cell | [unused | _]]) :-
     Cell \= unused,
     print_cell(Cell),
-    print_row([]).
+    print_row([]), !.
 print_row([unused | Rest]) :-
-    print_row(Rest).
+    print_row(Rest), !.
 print_row([Cell | Rest]) :-
     print_cell(Cell),
     display_dash(Rest),
-    print_row(Rest).
+    print_row(Rest), !.
 
 % print_board(+Board)
 % Predicate to print the entire hexagonal board
@@ -117,25 +117,25 @@ print_spaces(N) :-
  *
  *  Board structure
  *
- *  1 --------------     [w] - [w] - [w] - [w] - [w]             
+ *  0 --------------     [w] - [w] - [w] - [w] - [w]             
  *                                                              
- *  2 ------------    [ ] - [B] - [B] - [B] - [B] - [ ]      
+ *  1 ------------    [ ] - [B] - [B] - [B] - [B] - [ ]      
  *                                                            
- *  3 ----------   [ ] - [B] - [ ] - [B] - [ ] - [B] - [ ]   
+ *  2 ----------   [ ] - [B] - [ ] - [B] - [ ] - [B] - [ ]   
  *                                                              
- *  4 --------  [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [ ] 
+ *  3 --------  [ ] - [B] - [B] - [B] - [B] - [B] - [B] - [ ] 
  *                                                              
- *  5 ------ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
+ *  4 ------ [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ] - [ ]
  *                                                              
- *  6 --------  [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]   \      
+ *  5 --------  [ ] - [W] - [W] - [W] - [W] - [W] - [W] - [ ]   \      
  *                                                               \      
- *  7 ----------   [ ] - [W] - [ ] - [W] - [ ] - [W] - [ ]   \    \
+ *  6 ----------   [ ] - [W] - [ ] - [W] - [ ] - [W] - [ ]   \    \
  *                                                            \    \
- *  8 ------------    [ ] - [W] - [W] - [W] - [W] - [ ]   \    \    \
+ *  7 ------------    [ ] - [W] - [W] - [W] - [W] - [ ]   \    \    \
  *                                                         \    \    \
- *  9 --------------     [b] - [b] - [b] - [b] - [b]   \    \    \    \
+ *  8 --------------     [b] - [b] - [b] - [b] - [b]   \    \    \    \
  *                                                      \    \    \    \
  *                          \     \     \     \     \    \    \    \    \
  *                           \     \     \     \     \    \    \    \    \
- *                            1     2     3     4     5    6    7    8    9                  
+ *                            0     1     2     3     4    5    6    7    8                  
 **/

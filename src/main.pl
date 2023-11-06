@@ -24,16 +24,18 @@ diagonal_move(RowI-ColI, RowF-ColF, Dir) :- %Up-Right
     ColDif is ColF - ColI,
     RowI =\= RowF,
     RowDif is RowF - RowI,
-    abs(ColDif) =:= abs(RowDif),
+    ColDif =:= abs(RowDif),
     RowDif < 0,
+    ColDif > 0,
     Dir is 1, !.
 diagonal_move(RowI-ColI, RowF-ColF, Dir) :- %Down-Left
     ColI =\= ColF,                                 
     ColDif is ColF - ColI,
     RowI =\= RowF,
     RowDif is RowF - RowI,
-    abs(ColDif) =:= abs(RowDif),
+    abs(ColDif) =:= RowDif,
     RowDif > 0,
+    ColDif < 0,
     Dir is -1, !.
 
 % horizontal_move(+PosOrigin, +PosDestination)
@@ -159,7 +161,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
     diagonal_move(Row-Col, NewRow-NewCol, Dir),
     Dir =:= 0,
     noOwnGoal(NewRow, Color),
-    steps_in_diagonal_left(Board, Color, Row-Col, Steps),
+    steps_in_diagonal_left(Board, Color, Row-Col, Steps), !,
     Steps > 0, 
     RowAux is (Row + Steps),
     NewRow == RowAux, !. %Diagonal Down-Right
@@ -173,7 +175,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
     diagonal_move(Row-Col, NewRow-NewCol, Dir),
     Dir =:= 2,
     noOwnGoal(NewRow, Color),
-    steps_in_diagonal_left(Board, Color, Row-Col, Steps),
+    steps_in_diagonal_left(Board, Color, Row-Col, Steps), !,
     Steps > 0, 
     RowAux is (Row - Steps),
     NewRow == RowAux, !. %Diagonal Up-Left
@@ -187,7 +189,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
     diagonal_move(Row-Col, NewRow-NewCol, Dir),
     Dir =:= 1,
     noOwnGoal(NewRow, Color),
-    steps_in_diagonal_right(Board, Color, Row-Col, Steps),
+    steps_in_diagonal_right(Board, Color, Row-Col, Steps), !,
     Steps > 0, 
     RowAux is (Row - Steps),
     NewRow == RowAux, %Diagonal Up-Right
@@ -203,7 +205,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol):-
     diagonal_move(Row-Col, NewRow-NewCol, Dir),
     Dir =:= -1,
     noOwnGoal(NewRow, Color),
-    steps_in_diagonal_right(Board, Color, Row-Col, Steps),
+    steps_in_diagonal_right(Board, Color, Row-Col, Steps), !,
     Steps > 0, 
     RowAux is (Row + Steps),
     NewRow == RowAux, %Diagonal Down-Left
@@ -218,7 +220,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol) :-
     PieceType == Color, 
     horizontal_move(Row-Col, NewRow-NewCol, Dir),
     Dir > 0,
-    steps_in_row(Board, Color, Row, Steps),
+    steps_in_row(Board, Color, Row, Steps), !,
     Steps > 0, 
     NewRow == Row, 
     ColAux is (Col + Steps),
@@ -232,7 +234,7 @@ validate_move([Board,Player,_], Row-Col, NewRow-NewCol) :-
     PieceType == Color, %Piece is of the same color as the player
     horizontal_move(Row-Col, NewRow-NewCol, Dir),
     Dir < 0,
-    steps_in_row(Board, Color, Row, Steps), 
+    steps_in_row(Board, Color, Row, Steps), !,
     Steps > 0, 
     NewRow == Row, 
     ColAux is (Col - Steps),
@@ -256,8 +258,8 @@ show_winner([_,_,_,TotalMoves], Winner):-
 % game_over(+GameState, -Winner)
 % Checks if the game is over
 game_over([Board, _, _], Winner):- % Check if Row 1 or Row 9 has any opposite colored pieces.
-    count_pieces_on_line(Board, 1, white, Count1),
-    count_pieces_on_line(Board, 9, black, Count2),
+    count_pieces_on_line(Board, 0, white, Count1),
+    count_pieces_on_line(Board, 8, black, Count2),
     (   Count1 > 0
     ->  Winner is player1
     ;   Count2 > 0
@@ -270,8 +272,7 @@ game_over([Board, Player, _], Winner):- % Check if player has any valid moves le
 % game_cycle(+GameState)
 % Loop that keeps the game running
 game_cycle(GameState) :-
-    \+game_over(GameState, Winner), !,
-    display_game(GameState),
+    game_over(GameState, Winner), !,
     show_winner(GameState, Winner).
 game_cycle(GameState) :-
     display_game(GameState),
@@ -303,24 +304,34 @@ move(GameState, ColI-RowI-ColF-RowF, NewGameState):-
     NewTotalMoves is TotalMoves + 1,
     NewGameState = [NewBoard, NewPlayer, NewTotalMoves].
 
+% print_list_of_moves(+ListOfMoves)
+% Prints the list of every valid move for a player
+print_list_of_moves(ListOfMoves):-
+    write('Here are the following available moves:'),
+    nl,
+    print_list_of_moves_aux(ListOfMoves).
+
+print_list_of_moves_aux([]).
+print_list_of_moves_aux([RowI-ColI-RowF-ColF | Rest]):-
+    write(RowI-ColI), write(' to '), write(RowF-ColF),
+    nl,
+    print_list_of_moves_aux(Rest).
+
 % valid_moves(+GameState, +Player, -ListOfMoves)
 % Gets all the valid moves of the given player
 valid_moves(GameState, Player, ListOfMoves):-
-    [Board,Player,TotalMoves] = GameState,
+    [Board,Player,_] = GameState,
     player_color(Player, Color),
-    ListOfMoves = [],  % Initialize the list
     findall(RowI-ColI-RowF-ColF, (
         between(0, 8, RowI),
         between(0, 8, ColI),
         position(Board, RowI-ColI, Piece),
         Piece == Color,
-        between(0, 8, ColF),
-        between(0, 8, RowF),
-        ColI \= ColF,  % Ensure ColI and ColF are different
-        RowI \= RowF,  % Ensure RowI and RowF are different
-        validate_move([Board, Player, TotalMoves], RowI-ColI, RowF-ColF),
-        writeln(RowI-ColI)
-    ), ListOfMoves).
+        numlist(0, 8, Rows),
+        numlist(0, 8, Cols),
+        member(RowF, Rows), member(ColF, Cols), 
+        validate_move([Board, Player,_], RowI-ColI, RowF-ColF)), ListOfMoves),
+    print_list_of_moves(ListOfMoves).
 
 % choose_move(+GameState, +Player, +Level, -Move)
 % Choose move for human player
@@ -342,7 +353,7 @@ choose_move([Board,Player,TotalMoves], ColI-RowI-ColF-RowF):-
 choose_move(GameState, Player, 1, ColI-RowI-ColF-RowF) :-
     valid_moves(GameState, Player, ListOfMoves),
     generate_random_from_list(ListOfMoves, Random),
-    nth0(Random, ListOfMoves, ColI-RowI-ColF-RowF).
+    nth0(Random, ListOfMoves, RowI-ColI-RowF-ColF).
 
 % play/0
 % Starts the game and clears data when it ends 
