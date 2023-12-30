@@ -53,7 +53,7 @@ run (Le : _, stack, state) = error "Invalid types for inequality comparison"
 --Logical operations
 run (And : code, BoolVal n1 : BoolVal n2 : stack, state) = (code, BoolVal (n1 && n2) : stack, state)
 run (Neg : code, BoolVal n : stack, state) = (code, BoolVal (not n) : stack, state)
---Stack operations
+--Stack & Store operations
 run (Push n : code, stack, state) = (code, IntVal n : stack, state)
 run (Fetch var : code, stack, state) =
   case lookup var state of
@@ -65,13 +65,12 @@ run (Store var : code, val : stack, state) =
     Just _ -> (code, stack, (var, val) : filter (\(v, _) -> v /= var) state)
     Nothing -> (code, stack, (var, val) : state)
 run (Store var : code, [], state) = error ("Empty stack, cannot store value on variable: " ++ var)
---Control flow operations
 run (Noop : code, stack, state) = (code, stack, state)
+--Control flow operations
 run (Branch c1 c2 : code, BoolVal p : stack, state) =
   if p then (c1 ++ code, stack, state) else (c2 ++ code, stack, state)
 run (Branch _ _ : _, _, _) = error "Invalid types, cannot perform branch operation"
 run (Loop c1 c2 : code, stack, state) = (c1 ++ [Branch (c2 ++ [Loop c1 c2]) [Noop]], stack, state)
-
 
 testAssembler :: Code -> (String, String)
 testAssembler code = testAssembleRecursive code createEmptyStack createEmptyState
@@ -103,10 +102,40 @@ testAssembler code = testAssembleRecursive code createEmptyStack createEmptyStat
 
 -- TODO: Define the types Aexp, Bexp, Stm and Program
 
--- Define a data type for arithmetic expressions
-data Aexp = Num Int | Var String | Add Aexp Aexp | Sub Aexp Aexp | Mul Aexp Aexp
-data Bexp = BoolConst Bool | Equal Aexp Aexp | Less Aexp Aexp | Not Bexp
-data Stm = Assign String Aexp | If Bexp Stm Stm | While Bexp Stm | Seq [Stm]
+data Aexp =
+  NumExp Integer | VarExp String | AddExp Aexp Aexp | SubExp Aexp Aexp | MultExp Aexp Aexp
+  deriving Show
+
+data Bexp =
+  BoolExp Bool | EqExp Aexp Aexp | LeExp Aexp Aexp | NegExp Bexp | AndExp Bexp Bexp
+  deriving Show
+
+data Stm =
+  AssignStm String Aexp | SeqStm Stm Stm | IfStm Bexp Stm Stm | WhileStm Bexp Stm | DoStm Stm Bexp
+  deriving Show
+
+compA :: Aexp -> Code
+compA (NumExp n) = [Push n]
+compA (VarExp x) = [Fetch x]
+compA (AddExp a1 a2) = compA a1 ++ compA a2 ++ [Add]
+compA (SubExp a1 a2) = compA a1 ++ compA a2 ++ [Sub]
+compA (MultExp a1 a2) = compA a1 ++ compA a2 ++ [Mult]
+
+compB :: Bexp -> Code
+compB (BoolExp b) = if b then [Tru] else [Fals]
+compB (EqExp a1 a2) = compA a1 ++ compA a2 ++ [Equ]
+compB (LeExp a1 a2) = compA a1 ++ compA a2 ++ [Le]
+compB (NotExp b) = compB b ++ [Neg]
+compB (AndExp b1 b2) = compB b1 ++ compB b2 ++ [And]
+
+compile :: [Stm] -> Code
+compile stms = concatMap compileStm stms
+
+compileStm :: Stm -> Code
+compileStm (AssignStm var exp) = compA exp ++ [Store var]
+compileStm (SeqStm stm1 stm2) = compileStm stm1 ++ compileStm stm2
+compileStm (IfStm p b1 b2) = compB p ++ [Branch (compileStm b1) (compileStm b2)]
+compileStm (WhileStm p c) = [Loop (compB p) (compileStm c)]
 
 -- Lexer function
 lexer :: String -> [String]
@@ -116,15 +145,6 @@ lexer (c:cs)
   | isSpace c = lexer cs
   | otherwise = let (token, rest) = break (\x -> isSpace x || x `elem` "()[]=<>+-*/;") (c:cs)
                 in token : lexer rest
-
--- compA :: Aexp -> Code
-compA = undefined -- TODO
-
--- compB :: Bexp -> Code
-compB = undefined -- TODO
-
--- compile :: Program -> Code
-compile = undefined -- TODO
 
 -- parse :: String -> Program
 parse = undefined -- TODO
