@@ -1,5 +1,6 @@
 import Data.List
 import Data.Ord
+import Data.Char (isSpace)
 
 -- Part 1
 
@@ -97,10 +98,24 @@ testAssembler code = testAssembleRecursive code createEmptyStack createEmptyStat
 -- testAssembler [Tru,Tru,Store "y", Fetch "x",Tru]
 -- You should get an exception with the string: "Run-time error"
 
-{-
+
 -- Part 2
 
 -- TODO: Define the types Aexp, Bexp, Stm and Program
+
+-- Define a data type for arithmetic expressions
+data Aexp = Num Int | Var String | Add Aexp Aexp | Sub Aexp Aexp | Mul Aexp Aexp
+data Bexp = BoolConst Bool | Equal Aexp Aexp | Less Aexp Aexp | Not Bexp
+data Stm = Assign String Aexp | If Bexp Stm Stm | While Bexp Stm | Seq [Stm]
+
+-- Lexer function
+lexer :: String -> [String]
+lexer "" = []
+lexer (c:cs)
+  | c `elem` "()[]=<>+-*/;" = [c] : lexer cs
+  | isSpace c = lexer cs
+  | otherwise = let (token, rest) = break (\x -> isSpace x || x `elem` "()[]=<>+-*/;") (c:cs)
+                in token : lexer rest
 
 -- compA :: Aexp -> Code
 compA = undefined -- TODO
@@ -132,4 +147,3 @@ testParser programCode = (stack2Str stack, store2Str store)
 -- testParser "if (1 == 0+1 = (2+1 == 4)) then x := 1; else x := 2;" == ("","x=2")
 -- testParser "x := 2; y := (x - 3)*(4 + 2*3); z := x +x*(2);" == ("","x=2,y=-10,z=6")
 -- testParser "i := 10; fact := 1; while (not(i == 1)) do (fact := fact * i; i := i - 1;);" == ("","fact=3628800,i=1")
--}

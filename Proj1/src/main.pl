@@ -144,7 +144,7 @@ steps_in_diagonal_right(Board, black, Row-Col, Steps):-
     Steps is (BlackCount - WhiteCount).
 
 % noOwnGoal(+RowF, +Piece)
-% Checks if the move is not to it's own goal
+% Checks if the move is not to its own goal
 noOwnGoal(RowF, white) :-
     RowF =\= 8.
 noOwnGoal(RowF, black) :-
