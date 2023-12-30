@@ -97,7 +97,6 @@ testAssembler code = testAssembleRecursive code createEmptyStack createEmptyStat
 -- testAssembler [Tru,Tru,Store "y", Fetch "x",Tru]
 -- You should get an exception with the string: "Run-time error"
 
-
 -- Part 2
 
 -- TODO: Define the types Aexp, Bexp, Stm and Program
@@ -122,7 +121,7 @@ compA (SubExp a1 a2) = compA a1 ++ compA a2 ++ [Sub]
 compA (MultExp a1 a2) = compA a1 ++ compA a2 ++ [Mult]
 
 compB :: Bexp -> Code
-compB (BoolExp b) = if b then [Tru] else [Fals]
+compB (BoolExp b) = [if b then Tru else Fals]
 compB (EqExp a1 a2) = compA a1 ++ compA a2 ++ [Equ]
 compB (LeExp a1 a2) = compA a1 ++ compA a2 ++ [Le]
 compB (NotExp b) = compB b ++ [Neg]
