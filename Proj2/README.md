@@ -267,11 +267,32 @@ parseAssign _ = Nothing
 `parseAssign` will check if there is an assignment symbol after the initial variable. If it is, we will run the `parseAexp` function. If not, we go back to `parseStm` and try `parseSeq`.
 
 ```hs
-parseAexp :: [String] -> Maybe(Aexp, [String])
-parseAexp ts =
-    case parseNumVarParenthesesSumSubProd ts of
-        Just (exp, tsRest) -> Just (exp, tsRest)
-        _ -> Nothing
+parseNumVar :: [String] -> Maybe (Aexp, [String])
+parseNumVar (t : tsRest)
+    | all isDigit t    = Just (NumConst (read t), tsRest)
+    | not (null t) && isLower (head t) = Just (VarExp t, tsRest)
+parseNumVar ts = Nothing
+
+parseNumVarParentheses :: [String] -> Maybe (Aexp, [String])
+parseNumVarParentheses ("(" : tsRest1)
+    = case parseNumVarParenthesesSumSubProd tsRest1 of
+        Just (exp, ")" : tsRest2) ->
+            Just (exp, tsRest2)
+        Just _ -> Nothing
+        Nothing -> Nothing
+parseNumVarParentheses ts = parseNumVar ts
+
+parseNumVarParenthesesProd :: [String] -> Maybe (Aexp, [String])
+parseNumVarParenthesesProd ts = 
+    case parseNumVarParentheses ts of
+        Just (exp, tsRest) -> parseAcc exp tsRest
+        Nothing -> Nothing
+  where
+    parseAcc acc ("*" : tsRest) =
+        case parseNumVarParentheses tsRest of
+            Just (exp, tsRest1) -> parseAcc (MultExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc tsRest = Just (acc, tsRest)
 
 parseNumVarParenthesesSumSubProd :: [String] -> Maybe (Aexp, [String])
 parseNumVarParenthesesSumSubProd ts = 
@@ -289,7 +310,11 @@ parseNumVarParenthesesSumSubProd ts =
             Nothing -> Nothing
     parseAcc acc tsRest = Just (acc, tsRest)
 
-
+parseAexp :: [String] -> Maybe(Aexp, [String])
+parseAexp ts =
+    case parseNumVarParenthesesSumSubProd ts of
+        Just (exp, tsRest) -> Just (exp, tsRest)
+        _ -> Nothing
 ```
 
 That string will run through all these functions. 
