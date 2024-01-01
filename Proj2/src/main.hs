@@ -164,15 +164,15 @@ parseNumVar ts = Nothing
 
 parseNumVarParentheses :: [String] -> Maybe (Aexp, [String])
 parseNumVarParentheses ("(" : tsRest1)
-    = case parseNumVarParenthesesSumSubProd tsRest1 of
+    = case parseNumVarSumSub tsRest1 of
         Just (exp, ")" : tsRest2) ->
             Just (exp, tsRest2)
         Just _ -> Nothing
         Nothing -> Nothing
 parseNumVarParentheses ts = parseNumVar ts
 
-parseNumVarParenthesesProd :: [String] -> Maybe (Aexp, [String])
-parseNumVarParenthesesProd ts = 
+parseNumVarProd :: [String] -> Maybe (Aexp, [String])
+parseNumVarProd ts = 
     case parseNumVarParentheses ts of
         Just (exp, tsRest) -> parseAcc exp tsRest
         Nothing -> Nothing
@@ -183,25 +183,25 @@ parseNumVarParenthesesProd ts =
             Nothing -> Nothing
     parseAcc acc tsRest = Just (acc, tsRest)
 
-parseNumVarParenthesesSumSubProd :: [String] -> Maybe (Aexp, [String])
-parseNumVarParenthesesSumSubProd ts = 
-    case parseNumVarParenthesesProd ts of
+parseNumVarSumSub :: [String] -> Maybe (Aexp, [String])
+parseNumVarSumSub ts = 
+    case parseNumVarProd ts of
         Just (exp, tsRest) -> parseAcc exp tsRest
         Nothing -> Nothing
   where
     parseAcc acc ("+" : tsRest) =
-        case parseNumVarParenthesesProd tsRest of
+        case parseNumVarProd tsRest of
             Just (exp, tsRest1) -> parseAcc (AddExp acc exp) tsRest1
             Nothing -> Nothing
     parseAcc acc ("-" : tsRest) =
-        case parseNumVarParenthesesProd tsRest of
+        case parseNumVarProd tsRest of
             Just (exp, tsRest1) -> parseAcc (SubExp acc exp) tsRest1
             Nothing -> Nothing
     parseAcc acc tsRest = Just (acc, tsRest)
 
 parseAexp :: [String] -> Maybe(Aexp, [String])
 parseAexp ts =
-    case parseNumVarParenthesesSumSubProd ts of
+    case parseNumVarSumSub ts of
         Just (exp, tsRest) -> Just (exp, tsRest)
         _ -> Nothing
 
@@ -213,15 +213,15 @@ parseBool ts = Nothing
 
 parseBoolParentheses :: [String] -> Maybe (Bexp, [String])
 parseBoolParentheses ("(" : tsRest1)
-    = case parseBoolParenthesesLeEqANotEqBAnd tsRest1 of
+    = case parseBoolAnd tsRest1 of
         Just (exp, ")" : tsRest2) ->
             Just (exp, tsRest2)
         Just _ -> Nothing
         Nothing -> Nothing
 parseBoolParentheses ts = parseBool ts
 
-parseBoolParenthesesLeEqA :: [String] -> Maybe (Bexp, [String])
-parseBoolParenthesesLeEqA ts = 
+parseBoolLeEqA :: [String] -> Maybe (Bexp, [String])
+parseBoolLeEqA ts = 
     case parseAexp ts of
         Just (exp1, op : tsRest1) | op `elem` ["<=", "=="] ->
             case parseAexp tsRest1 of
@@ -233,41 +233,41 @@ parseBoolParenthesesLeEqA ts =
                 Nothing -> Nothing
         _ -> parseBoolParentheses ts
 
-parseBoolParenthesesLeEqANot :: [String] -> Maybe (Bexp, [String])
-parseBoolParenthesesLeEqANot ("not" : tsRest1) = 
-    case parseBoolParenthesesLeEqA tsRest1 of
+parseBoolNot :: [String] -> Maybe (Bexp, [String])
+parseBoolNot ("not" : tsRest1) = 
+    case parseBoolLeEqA tsRest1 of
         Just (exp, tsRest2) ->
             Just (NotExp exp, tsRest2)
         solution -> solution
-parseBoolParenthesesLeEqANot ts = parseBoolParenthesesLeEqA ts
+parseBoolNot ts = parseBoolLeEqA ts
 
-parseBoolParenthesesLeEqANotEqB :: [String] -> Maybe (Bexp, [String])
-parseBoolParenthesesLeEqANotEqB ts = 
-    case parseBoolParenthesesLeEqANot ts of
+parseBoolEqB :: [String] -> Maybe (Bexp, [String])
+parseBoolEqB ts = 
+    case parseBoolNot ts of
         Just (exp, tsRest) -> parseAcc exp tsRest
         _ -> Nothing
   where
     parseAcc acc ("=" : tsRest) =
-        case parseBoolParenthesesLeEqANot tsRest of
+        case parseBoolNot tsRest of
             Just (exp, tsRest1) -> parseAcc (EqBExp acc exp) tsRest1
             Nothing -> Nothing
     parseAcc acc tsRest = Just (acc, tsRest)
 
-parseBoolParenthesesLeEqANotEqBAnd :: [String] -> Maybe (Bexp, [String])
-parseBoolParenthesesLeEqANotEqBAnd ts = 
-    case parseBoolParenthesesLeEqANotEqB ts of
+parseBoolAnd :: [String] -> Maybe (Bexp, [String])
+parseBoolAnd ts = 
+    case parseBoolEqB ts of
         Just (exp, tsRest) -> parseAcc exp tsRest
         _ -> Nothing
   where
     parseAcc acc ("and" : tsRest) =
-        case parseBoolParenthesesLeEqANotEqB tsRest of
+        case parseBoolEqB tsRest of
             Just (exp, tsRest1) -> parseAcc (AndExp acc exp) tsRest1
             Nothing -> Nothing
     parseAcc acc tsRest = Just (acc, tsRest)
 
 parseBexp :: [String] -> Maybe(Bexp, [String])
 parseBexp ts =
-    case parseBoolParenthesesLeEqANotEqBAnd ts of
+    case parseBoolAnd ts of
         Just (exp, tsRest) -> Just (exp, tsRest)
         _ -> Nothing
 
