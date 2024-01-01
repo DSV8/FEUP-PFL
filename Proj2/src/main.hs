@@ -1,6 +1,6 @@
 import Data.List
 import Data.Ord
-import Data.Char (isSpace)
+import Data.Char
 
 -- Part 1
 
@@ -102,48 +102,55 @@ testAssembler code = testAssembleRecursive code createEmptyStack createEmptyStat
 -- TODO: Define the types Aexp, Bexp, Stm and Program
 
 data Aexp =
-  NumExp Integer | VarExp String | AddExp Aexp Aexp | SubExp Aexp Aexp | MultExp Aexp Aexp
+  NumConst Integer | VarExp String | AddExp Aexp Aexp | SubExp Aexp Aexp | MultExp Aexp Aexp
   deriving Show
 
 data Bexp =
-  BoolExp Bool | EqExp Aexp Aexp | LeExp Aexp Aexp | NegExp Bexp | AndExp Bexp Bexp
+  BoolConst Bool | EqAExp Aexp Aexp | EqBExp Bexp Bexp | LeExp Aexp Aexp | NegExp Bexp | AndExp Bexp Bexp
   deriving Show
 
 data Stm =
-  AssignStm String Aexp | SeqStm Stm Stm | IfStm Bexp Stm Stm | WhileStm Bexp Stm | DoStm Stm Bexp
+  AssignStm String Aexp | SeqStm Stm Stm | IfStm Bexp Stm Stm | WhileStm Bexp Stm
   deriving Show
 
+type Program = [Stm]
+
 compA :: Aexp -> Code
-compA (NumExp n) = [Push n]
-compA (VarExp x) = [Fetch x]
-compA (AddExp a1 a2) = compA a1 ++ compA a2 ++ [Add]
-compA (SubExp a1 a2) = compA a1 ++ compA a2 ++ [Sub]
-compA (MultExp a1 a2) = compA a1 ++ compA a2 ++ [Mult]
+compA (NumConst n) = [Push n]
+compA (VarExp var) = [Fetch var]
+compA (AddExp n1 n2) = compA n2 ++ compA n1 ++ [Add]
+compA (SubExp n1 n2) = compA n2 ++ compA n1 ++ [Sub]
+compA (MultExp n1 n2) = compA n2 ++ compA n1 ++ [Mult]
 
 compB :: Bexp -> Code
-compB (BoolExp b) = [if b then Tru else Fals]
-compB (EqExp a1 a2) = compA a1 ++ compA a2 ++ [Equ]
-compB (LeExp a1 a2) = compA a1 ++ compA a2 ++ [Le]
-compB (NotExp b) = compB b ++ [Neg]
-compB (AndExp b1 b2) = compB b1 ++ compB b2 ++ [And]
+compB (BoolConst b) = [if b then Tru else Fals]
+compB (EqAExp n1 a2) = compA n2 ++ compA n1 ++ [Equ]
+compB (EqBExp b1 b2) = compB b2 ++ compB b1 ++ [Equ]
+compB (LeExp n1 n2) = compA n2 ++ compA n1 ++ [Le]
+compB (NegExp b) = compB b ++ [Neg]
+compB (AndExp b1 b2) = compB b2 ++ compB b1 ++ [And]
 
-compile :: [Stm] -> Code
-compile stms = concatMap compileStm stms
+compile :: Program -> Code
+compile = concatMap compStm
 
 compileStm :: Stm -> Code
 compileStm (AssignStm var exp) = compA exp ++ [Store var]
-compileStm (SeqStm stm1 stm2) = compileStm stm1 ++ compileStm stm2
+compileStm (SeqStm s1 s2) = compileStm s1 ++ compileStm s2
 compileStm (IfStm p b1 b2) = compB p ++ [Branch (compileStm b1) (compileStm b2)]
 compileStm (WhileStm p c) = [Loop (compB p) (compileStm c)]
 
--- Lexer function
 lexer :: String -> [String]
-lexer "" = []
-lexer (c:cs)
-  | c `elem` "()[]=<>+-*/;" = [c] : lexer cs
+lexer [] = []
+lexer (c : cs)
   | isSpace c = lexer cs
-  | otherwise = let (token, rest) = break (\x -> isSpace x || x `elem` "()[]=<>+-*/;") (c:cs)
-                in token : lexer rest
+  | isDigit c = let (n, rest) = span isDigit (c : cs) in n : lexer rest
+  | isAlpha c = let (var, rest) = span isAlpha (c : cs) in var : lexer rest
+  | elem c "+-*();" = [c] : lexer cs
+  | c == '=' || c == '<' || c == ':' =
+    case cs of
+      ('=' : rest) -> [c, '='] : lexer rest
+      _ -> [c] : lexer cs
+  | otherwise = error $ "Invalid character: " ++ [c]
 
 -- parse :: String -> Program
 parse = undefined -- TODO
