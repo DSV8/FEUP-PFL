@@ -1,6 +1,6 @@
 import Data.List
 import Data.Ord
-import Data.Char (isSpace)
+import Data.Char
 
 -- Part 1
 
@@ -59,7 +59,6 @@ run (Fetch var : code, stack, state) =
   case lookup var state of
     Just val -> (code, val : stack, state)
     Nothing -> error ("Variable not found:" ++ var)
-run (Fetch var : code, [], state) = error ("Empty stack, cannot fetch variable: " ++ var)
 run (Store var : code, val : stack, state) =
   case lookup var state of
     Just _ -> (code, stack, (var, val) : filter (\(v, _) -> v /= var) state)
