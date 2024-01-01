@@ -271,7 +271,6 @@ parseBexp ts =
         Just (exp, tsRest) -> Just (exp, tsRest)
         _ -> Nothing
 
-
 -- Parsing statements
 parseAssign :: [String] -> Maybe (Stm, [String])
 parseAssign (var : ":=" : rest) = 
@@ -328,8 +327,6 @@ parseStm ts =
                     Just (stm, tsRest) -> Just (stm, tsRest)
                     _ -> Nothing
 
-
--- General Parsing
 buildData :: [String] -> Program
 buildData [] = []
 buildData ts =
