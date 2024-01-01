@@ -177,26 +177,6 @@ parseNumVarParenthesesSumSubProd ts =
         Just (exp, tsRest) -> parseAcc exp tsRest
         Nothing -> Nothing
   where
-    parseAcc acc ("+" : tsRest) =
-        case parseNumVarParentheses tsRest of
-            Just (exp, tsRest1) -> parseAcc (AddExp acc exp) tsRest1
-            Nothing -> Nothing
-    parseAcc acc ("-" : tsRest) =
-        case parseNumVarParentheses tsRest of
-            Just (exp, tsRest1) -> parseAcc (SubExp acc exp) tsRest1
-            Nothing -> Nothing
-    parseAcc acc ("*" : tsRest) =
-        case parseNumVarParentheses tsRest of
-            Just (exp, tsRest1) -> parseAcc (MultExp acc exp) tsRest1
-            Nothing -> Nothing
-    parseAcc acc tsRest = Just (acc, tsRest)
-
-parseNumVarParenthesesSumSubProd :: [String] -> Maybe (Aexp, [String])
-parseNumVarParenthesesSumSubProd ts = 
-    case parseNumVarParentheses ts of
-        Just (exp, tsRest) -> parseAcc exp tsRest
-        Nothing -> Nothing
-  where
     parseAcc acc (op : tsRest) | op `elem` ["+", "-", "*"] =
         case parseNumVarParentheses tsRest of
             Just (exp, tsRest1) ->
