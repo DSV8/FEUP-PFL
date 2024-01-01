@@ -269,7 +269,7 @@ parseAssign _ = Nothing
 ```hs
 parseNumVar :: [String] -> Maybe (Aexp, [String])
 parseNumVar (t : tsRest)
-    | all isDigit t    = Just (NumConst (read t), tsRest)
+    | all isDigit t = Just (NumConst (read t), tsRest)
     | not (null t) && isLower (head t) = Just (VarExp t, tsRest)
 parseNumVar ts = Nothing
 
@@ -318,3 +318,139 @@ parseAexp ts =
 ```
 
 That string will run through all these functions. 
+
+`parseNumVar` will check if the string starts with a variable or a number.
+
+`parseNumVarParentheses` checks if there is an initial parenthesis in the string and give it priority if it exists. If there isn't it will call `parseNumVar`.
+
+`parseNumVarParenthesesSumSubProd` will call the `parseNumVarParenthesesProd` that tries `parseNumVarParentheses`. Regardless of the existence of parentheses or not, it will call `parseAcc`, that will check if there is a sum, subtraction or product in the string. If there are it will call the same functions for the rest of the string, so that the full arithmetic expression is compiled.
+
+```hs
+parseSeq :: [String] -> Maybe (Stm, [String])
+parseSeq ("(" : tsRest1) =
+    case parseStm tsRest1 of
+        Just (stm1, tsRest2) -> 
+            case parseStm tsRest2 of
+                Just (stm2, ")" : tsRest3) -> Just (SeqStm stm1 stm2, tsRest3)
+                _ -> Nothing
+        _ -> Nothing
+parseSeq _ = Nothing
+```
+
+`parseSeq` is relatively simple. It checks for the existence of an initial parenthesis and then calls `parceStm` twice so that both statements in the sequence can be compiled.
+
+```hs
+parseBool :: [String] -> Maybe (Bexp, [String])
+parseBool ("True" : tsRest)  = Just (BoolConst True, tsRest)
+parseBool ("False" : tsRest) = Just (BoolConst False, tsRest)
+parseBool ts = Nothing
+
+parseBoolParentheses :: [String] -> Maybe (Bexp, [String])
+parseBoolParentheses ("(" : tsRest1)
+    = case parseBoolParenthesesLeEqANotEqBAnd tsRest1 of
+        Just (exp, ")" : tsRest2) ->
+            Just (exp, tsRest2)
+        Just _ -> Nothing
+        Nothing -> Nothing
+parseBoolParentheses ts = parseBool ts
+
+parseBoolParenthesesLeEqA :: [String] -> Maybe (Bexp, [String])
+parseBoolParenthesesLeEqA ts = 
+    case parseAexp ts of
+        Just (exp1, op : tsRest1) | op `elem` ["<=", "=="] ->
+            case parseAexp tsRest1 of
+                Just (exp2, tsRest2) ->
+                    case op of
+                        "<=" -> Just (LeExp exp1 exp2, tsRest2)
+                        "==" -> Just (EqAExp exp1 exp2, tsRest2)
+                        _    -> Nothing
+                Nothing -> Nothing
+        _ -> parseBoolParentheses ts
+
+parseBoolParenthesesLeEqANot :: [String] -> Maybe (Bexp, [String])
+parseBoolParenthesesLeEqANot ("not" : tsRest1) = 
+    case parseBoolParenthesesLeEqA tsRest1 of
+        Just (exp, tsRest2) ->
+            Just (NotExp exp, tsRest2)
+        solution -> solution
+parseBoolParenthesesLeEqANot ts = parseBoolParenthesesLeEqA ts
+
+parseBoolParenthesesLeEqANotEqB :: [String] -> Maybe (Bexp, [String])
+parseBoolParenthesesLeEqANotEqB ts = 
+    case parseBoolParenthesesLeEqANot ts of
+        Just (exp, tsRest) -> parseAcc exp tsRest
+        _ -> Nothing
+  where
+    parseAcc acc ("=" : tsRest) =
+        case parseBoolParenthesesLeEqANot tsRest of
+            Just (exp, tsRest1) -> parseAcc (EqBExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc tsRest = Just (acc, tsRest)
+
+parseBoolParenthesesLeEqANotEqBAnd :: [String] -> Maybe (Bexp, [String])
+parseBoolParenthesesLeEqANotEqBAnd ts = 
+    case parseBoolParenthesesLeEqANotEqB ts of
+        Just (exp, tsRest) -> parseAcc exp tsRest
+        _ -> Nothing
+  where
+    parseAcc acc ("and" : tsRest) =
+        case parseBoolParenthesesLeEqANotEqB tsRest of
+            Just (exp, tsRest1) -> parseAcc (AndExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc tsRest = Just (acc, tsRest)
+
+parseBexp :: [String] -> Maybe(Bexp, [String])
+parseBexp ts =
+    case parseBoolParenthesesLeEqANotEqBAnd ts of
+        Just (exp, tsRest) -> Just (exp, tsRest)
+        _ -> Nothing
+
+
+parseIf :: [String] -> Maybe (Stm, [String])
+parseIf ("if" : rest) =
+    case parseBexp rest of
+        Just (bexp, "then" : tsRest1) ->
+            case parseStm tsRest1 of
+                Just (stm1, "else" : tsRest2) ->
+                    case parseAssign tsRest2 of
+                        Just (ass, ";" : tsRest3) -> Just (IfStm bexp stm1 ass, tsRest3)
+                        _ -> case parseStm tsRest2 of
+                                Just (stm2, ";" : tsRest3) -> Just (IfStm bexp stm1 stm2, tsRest3)
+                                _ -> Nothing
+                _ -> Nothing
+parseIf _ = Nothing
+```
+
+`parseIf` is similar to `parseAssign` but for boolean expressions. It will first call `parseBexp` that will check for the existence of a boolean expression. 
+
+`parseBool` will verify if the head of the string contains `True` or `False`.
+
+`parseBoolParentheses` will verify if there are parentheses on the string, giving it priority if true.
+
+`parseBoolParenthesesLeEqA` will call `parseAexp` and check for operations like `<=` and `==` for conditions with numbers or variables. 
+
+`parseBoolParenthesesLeEqANot` verifies the string for `not` operations.
+
+`parseBoolParenthesesLeEqANotEqB` for boolean equality `=`.
+
+And finally, `parseBoolParenthesesLeEqANotEqBAnd` for `and` operators.
+
+```hs
+parseWhile :: [String] -> Maybe (Stm, [String])
+parseWhile ("while" : rest) =
+    case parseBexp rest of
+        Just (bexp, "do" : tsRest1) -> 
+            case parseAssign tsRest1 of
+                Just (ass, ";" : tsRest2) -> Just (WhileStm bexp ass, tsRest2)
+                _ -> case parseStm tsRest1 of
+                        Just (stm, ";" : tsRest2) -> Just (WhileStm bexp stm, tsRest2)
+                        _ -> Nothing
+        _ -> Nothing
+parseWhile _ = Nothing
+```
+
+Finally, `parseWhile` checks for `while` in the string. It starts by looking for the boolean expression associated with keeping the loop running and then checks for assignments and other statements (like if's and else's) that might occur inside the loop.
+
+### Conclusion of Part 2
+
+Even though we explained the code by the order we were given in the project specification, the program for part 2 itself will run in the opposite way. First, we will use `lexer` to separate the input string and then parse it with the functions above, changing the string to the `data types` created in `2.a`. Afterwards, we will send the parsed string to the `compile` function that will alter the string to the machine language used in part 1 and then run the code in that machine.

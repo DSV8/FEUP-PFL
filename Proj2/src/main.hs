@@ -158,7 +158,7 @@ lexer (c : cs)
 -- Parsing arithmetic expressions
 parseNumVar :: [String] -> Maybe (Aexp, [String])
 parseNumVar (t : tsRest)
-    | all isDigit t    = Just (NumConst (read t), tsRest)
+    | all isDigit t = Just (NumConst (read t), tsRest)
     | not (null t) && isLower (head t) = Just (VarExp t, tsRest)
 parseNumVar ts = Nothing
 
