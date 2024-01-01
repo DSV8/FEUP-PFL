@@ -98,8 +98,6 @@ testAssembler code = testAssembleRecursive code createEmptyStack createEmptyStat
 
 -- Part 2
 
--- TODO: Define the types Aexp, Bexp, Stm and Program
-
 data Aexp =
   NumConst Integer | VarExp String | AddExp Aexp Aexp | SubExp Aexp Aexp | MultExp Aexp Aexp
   deriving Show

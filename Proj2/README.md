@@ -131,3 +131,97 @@ c1 ++ [Branch (c2 ++ [Loop c1 c2]) [Noop]]
 
 ### 2.a
 
+```hs
+data Aexp =
+  NumConst Integer | VarExp String | AddExp Aexp Aexp | SubExp Aexp Aexp | MultExp Aexp Aexp
+  deriving Show
+
+data Bexp =
+  BoolConst Bool | EqAExp Aexp Aexp | EqBExp Bexp Bexp | LeExp Aexp Aexp | NegExp Bexp | AndExp Bexp Bexp
+  deriving Show
+
+data Stm =
+  AssignStm String Aexp | SeqStm Stm Stm | IfStm Bexp Stm Stm | WhileStm Bexp Stm
+  deriving Show
+
+type Program = [Stm]
+```
+
+`Arithmetic expressions` consist of everything that returns numeric values. So numeric values, variables and Addition, Subtraction and Product all belong to this data.
+
+`Boolean expressions` consist of everything that returns boolean values. Therefore, it consists of boolean values, Integer Equality, Boolean Equality, Less or Equal with numeric values, Negation and, finally, And expressions with boolean values.
+
+`Statements` consist of all else. Assignments, sequential statements, If's and else's and While's all belong to this data.
+
+A `Program` is just a list of statements.
+
+### 2.b
+
+```hs
+compA :: Aexp -> Code
+compA (NumConst n) = [Push n]
+compA (VarExp var) = [Fetch var]
+compA (AddExp n1 n2) = compA n2 ++ compA n1 ++ [Add]
+compA (SubExp n1 n2) = compA n2 ++ compA n1 ++ [Sub]
+compA (MultExp n1 n2) = compA n2 ++ compA n1 ++ [Mult]
+
+compB :: Bexp -> Code
+compB (BoolConst b) = [if b then Tru else Fals]
+compB (EqAExp n1 n2) = compA n2 ++ compA n1 ++ [Equ]
+compB (EqBExp b1 b2) = compB b2 ++ compB b1 ++ [Equ]
+compB (LeExp n1 n2) = compA n2 ++ compA n1 ++ [Le]
+compB (NegExp b) = compB b ++ [Neg]
+compB (AndExp b1 b2) = compB b2 ++ compB b1 ++ [And]
+
+compile :: Program -> Code
+compile = concatMap compileStm
+
+compileStm :: Stm -> Code
+compileStm (AssignStm var exp) = compA exp ++ [Store var]
+compileStm (SeqStm s1 s2) = compileStm s1 ++ compileStm s2
+compileStm (IfStm p b1 b2) = compB p ++ [Branch (compileStm b1) (compileStm b2)]
+compileStm (WhileStm p c) = [Loop (compB p) (compileStm c)]
+```
+
+`compile` will receive the program that was returned by the `parse` function that will be explained later.
+
+Because a program is a list of statements we need to compile each statement from the list using `concatMap`.
+
+`compileStm` will receive a statement as an input and then check which type of statement (defined in `data`) it is:
+- `AssignStm` will always store an Arithmetic Expression in a variable, so we will call `compA` to check which type of Arithmetic Expression we are dealing with and act accordingly.
+- `SeqStm` means two (or more) sequential statements so we will call the compileStm function again.
+- `IfStm` will do b1 if p is true and b2 otherwise (calling `compB` to check what type of Boolean Expression we are dealing with and act accordingly).
+- `WhileStm` calls a loop.
+
+### 2.c
+
+Before parsing the input string, we need to run the string through the `lexer` function and only then can we build the data accordingly.
+
+The `lexer` function consists in separating the string so that we can easily read the code to parse it.
+
+```hs
+lexer :: String -> [String]
+lexer [] = []
+lexer (c : cs)
+  | isSpace c = lexer cs
+  | isDigit c = let (n, rest) = span isDigit (c : cs) in n : lexer rest
+  | isAlpha c = let (var, rest) = span isAlpha (c : cs) in var : lexer rest
+  | elem c "+-*();" = [c] : lexer cs
+  | c == '=' || c == '<' || c == ':' =
+    case cs of
+      ('=' : rest) -> [c, '='] : lexer rest
+      _ -> [c] : lexer cs
+  | otherwise = error $ "Invalid character: " ++ [c]
+```
+
+It's easier to demonstrate what the function does with an input. When running `lexer` with the string `"if (not True and 2 <= 5 = 3 == 4) then x :=1; else y := 2;"` the result will be:
+
+```hs
+[
+  "if", "(", "not", "True", "and", "2", "<=", "5", "=", "3", "==", "4", ")", 
+  "then", "x", ":=", "1", ";", "else", "y", ":=", "2", ";"
+]
+```
+
+Therefore, the function will separate all words, digits and symbols, except if 2 symbols together exist, like `<=`, for example.
+
