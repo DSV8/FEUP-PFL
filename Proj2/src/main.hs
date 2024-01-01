@@ -331,7 +331,6 @@ parseStm ts =
                     Just (stm, tsRest) -> Just (stm, tsRest)
                     _ -> Nothing
 
--- General Parsing
 buildData :: [String] -> Program
 buildData [] = []
 buildData ts =
