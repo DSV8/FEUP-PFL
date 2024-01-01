@@ -36,39 +36,45 @@ state2Str state = intercalate "," (map pairToStr (sortBy (comparing fst) state))
 
 run :: (Code, Stack, State) -> (Code, Stack, State)
 run ([], stack, state) = ([], stack, state)
---Binary arithmetic operations
+
+--Arithmetic operations
 run (Add : code, IntVal n1 : IntVal n2 : stack, state) = (code, IntVal (n1 + n2) : stack, state)
 run (Mult : code, IntVal n1 : IntVal n2 : stack, state) = (code, IntVal (n1 * n2) : stack, state)
 run (Sub : code, IntVal n1 : IntVal n2 : stack, state) = (code, IntVal (n1 - n2) : stack, state)
+
 --Boolean operations
 run (Tru : code, stack, state) = (code, BoolVal True : stack, state)
 run (Fals : code, stack, state) = (code, BoolVal False : stack, state)
+
 --Comparison operations
 run (Equ : code, n1 : n2 : stack, state) = case (n1, n2) of
   (IntVal x, IntVal y) -> (code, BoolVal (x == y) : stack, state)
   (BoolVal x, BoolVal y) -> (code, BoolVal (x == y) : stack, state)
-  _ -> error "Invalid types for equality comparison"
+  _ -> error "Incorrect type while comparing for equality"
 run (Le : code, IntVal n1 : IntVal n2 : stack, state) = (code, BoolVal (n1 <= n2) : stack, state)
-run (Le : _, stack, state) = error "Invalid types for inequality comparison"
+run (Le : _, stack, state) = error "Incorrect type while comparing for inequality"
+
 --Logical operations
 run (And : code, BoolVal n1 : BoolVal n2 : stack, state) = (code, BoolVal (n1 && n2) : stack, state)
 run (Neg : code, BoolVal n : stack, state) = (code, BoolVal (not n) : stack, state)
+
 --Stack & Store operations
 run (Push n : code, stack, state) = (code, IntVal n : stack, state)
 run (Fetch var : code, stack, state) =
   case lookup var state of
     Just val -> (code, val : stack, state)
-    Nothing -> error ("Variable not found:" ++ var)
+    Nothing -> error (var ++ " not found")
 run (Store var : code, val : stack, state) =
   case lookup var state of
     Just _ -> (code, stack, (var, val) : filter (\(v, _) -> v /= var) state)
     Nothing -> (code, stack, (var, val) : state)
-run (Store var : code, [], state) = error ("Empty stack, cannot store value on variable: " ++ var)
+run (Store var : code, [], state) = error (var ++ "cannot be stored due to empty stack")
 run (Noop : code, stack, state) = (code, stack, state)
+
 --Control flow operations
 run (Branch c1 c2 : code, BoolVal p : stack, state) =
   if p then (c1 ++ code, stack, state) else (c2 ++ code, stack, state)
-run (Branch _ _ : _, _, _) = error "Invalid types, cannot perform branch operation"
+run (Branch _ _ : _, _, _) = error "Cannot branch due to incorrect types"
 run (Loop c1 c2 : code, stack, state) = (c1 ++ [Branch (c2 ++ [Loop c1 c2]) [Noop]], stack, state)
 
 testAssembler :: Code -> (String, String)
@@ -147,11 +153,7 @@ lexer (c : cs)
     case cs of
       ('=' : rest) -> [c, '='] : lexer rest
       _ -> [c] : lexer cs
-  | otherwise = error $ "Invalid character: " ++ [c]
-
-
-
-
+  | otherwise = error ([c] ++ " is not valid a character")
 
 -- Parsing arithmetic expressions
 parseNumVar :: [String] -> Maybe (Aexp, [String])
@@ -159,7 +161,6 @@ parseNumVar (t : tsRest)
     | all isDigit t    = Just (NumConst (read t), tsRest)
     | not (null t) && isLower (head t) = Just (VarExp t, tsRest)
 parseNumVar ts = Nothing
-
 
 parseNumVarParentheses :: [String] -> Maybe (Aexp, [String])
 parseNumVarParentheses ("(" : tsRest1)
@@ -204,7 +205,6 @@ parseAexp ts =
         Just (exp, tsRest) -> Just (exp, tsRest)
         _ -> Nothing
 
-
 -- Parsing boolean expressions
 parseBool :: [String] -> Maybe (Bexp, [String])
 parseBool ("True" : tsRest)  = Just (BoolConst True, tsRest)
@@ -238,7 +238,7 @@ parseBoolParenthesesLeEqANot ("not" : tsRest1) =
     case parseBoolParenthesesLeEqA tsRest1 of
         Just (exp, tsRest2) ->
             Just (NotExp exp, tsRest2)
-        result -> result
+        solution -> solution
 parseBoolParenthesesLeEqANot ts = parseBoolParenthesesLeEqA ts
 
 parseBoolParenthesesLeEqANotEqB :: [String] -> Maybe (Bexp, [String])
@@ -335,7 +335,7 @@ buildData [] = []
 buildData ts =
     case parseStm ts of
         Just (stm, tsRest) -> stm : buildData tsRest
-        _ -> error "Invalid tokens"
+        _ -> error "Token is not valid"
 
 parse :: String -> Program
 parse = buildData . lexer
