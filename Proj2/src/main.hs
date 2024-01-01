@@ -123,14 +123,14 @@ compA (MultExp n1 n2) = compA n2 ++ compA n1 ++ [Mult]
 
 compB :: Bexp -> Code
 compB (BoolConst b) = [if b then Tru else Fals]
-compB (EqAExp n1 a2) = compA n2 ++ compA n1 ++ [Equ]
+compB (EqAExp n1 n2) = compA n2 ++ compA n1 ++ [Equ]
 compB (EqBExp b1 b2) = compB b2 ++ compB b1 ++ [Equ]
 compB (LeExp n1 n2) = compA n2 ++ compA n1 ++ [Le]
 compB (NegExp b) = compB b ++ [Neg]
 compB (AndExp b1 b2) = compB b2 ++ compB b1 ++ [And]
 
 compile :: Program -> Code
-compile = concatMap compStm
+compile = concatMap compileStm
 
 compileStm :: Stm -> Code
 compileStm (AssignStm var exp) = compA exp ++ [Store var]
@@ -151,13 +151,213 @@ lexer (c : cs)
       _ -> [c] : lexer cs
   | otherwise = error $ "Invalid character: " ++ [c]
 
--- parse :: String -> Program
-parse = undefined -- TODO
 
+
+
+
+-- Parsing for arithmetic expressions
+parseVarInt :: [String] -> Maybe (Aexp, [String])
+parseVarInt (s : restTokens)
+    | all isDigit s    = Just (NumConst (read s), restTokens)
+    | isLower (head s) = Just (VarExp s, restTokens)
+parseVarInt tokens = Nothing
+
+parseVarIntOrParenExpr :: [String] -> Maybe (Aexp, [String])
+parseVarIntOrParenExpr ("(" : restTokens1)
+    = case parseSumSubOrProdOrVarIntOrPar restTokens1 of
+        Just (expr, ")" : restTokens2) ->
+            Just (expr, restTokens2)
+        Just _ -> Nothing
+        Nothing -> Nothing
+parseVarIntOrParenExpr tokens = parseVarInt tokens
+
+parseProdOrVarIntOrPar :: [String] -> Maybe (Aexp, [String])
+parseProdOrVarIntOrPar tokens = 
+    case parseVarIntOrParenExpr tokens of
+        Just (expr, restTokens) -> parseAcc expr restTokens
+        Nothing -> Nothing
+  where
+    parseAcc acc ("*" : restTokens) =
+        case parseVarIntOrParenExpr restTokens of
+            Just (expr, restTokens1) -> parseAcc (MultExp acc expr) restTokens1
+            Nothing -> Nothing
+    parseAcc acc restTokens = Just (acc, restTokens)
+
+parseSumSubOrProdOrVarIntOrPar :: [String] -> Maybe (Aexp, [String])
+parseSumSubOrProdOrVarIntOrPar tokens = 
+    case parseProdOrVarIntOrPar tokens of
+        Just (expr, restTokens) -> parseAcc expr restTokens
+        Nothing -> Nothing
+  where
+    parseAcc acc ("+" : restTokens) =
+        case parseProdOrVarIntOrPar restTokens of
+            Just (expr, restTokens1) -> parseAcc (AddExp acc expr) restTokens1
+            Nothing -> Nothing
+    parseAcc acc ("-" : restTokens) =
+        case parseProdOrVarIntOrPar restTokens of
+            Just (expr, restTokens1) -> parseAcc (SubExp acc expr) restTokens1
+            Nothing -> Nothing
+    parseAcc acc restTokens = Just (acc, restTokens)
+
+parseAexp :: [String] -> Maybe(Aexp, [String])
+parseAexp tokens =
+    case parseSumSubOrProdOrVarIntOrPar tokens of
+        Just (expr, restTokens) -> Just (expr, restTokens)
+        _ -> Nothing
+
+
+-- Parsing for boolean expressions
+parseBool :: [String] -> Maybe (Bexp, [String])
+parseBool ("True" : restTokens)  = Just (BoolConst True, restTokens)
+parseBool ("False" : restTokens) = Just (BoolConst False, restTokens)
+parseBool tokens = Nothing
+
+parseBoolOrParenExpr :: [String] -> Maybe (Bexp, [String])
+parseBoolOrParenExpr ("(" : restTokens1)
+    = case parseAndOrEqBOrNotOrEqAOrLeOrBoolOrPar restTokens1 of
+        Just (expr, ")" : restTokens2) ->
+            Just (expr, restTokens2)
+        Just _ -> Nothing
+        Nothing -> Nothing
+parseBoolOrParenExpr tokens = parseBool tokens
+
+parseLeOrBoolOrPar :: [String] -> Maybe (Bexp, [String])
+parseLeOrBoolOrPar tokens = 
+    case parseAexp tokens of
+        Just (expr1, "<=" : restTokens1) ->
+            case parseAexp restTokens1 of
+                Just (expr2, restTokens2) ->
+                    Just (LeExp expr1 expr2, restTokens2)
+                Nothing -> Nothing
+        _ -> parseBoolOrParenExpr tokens
+
+parseEqAOrLeOrBoolOrPar :: [String] -> Maybe (Bexp, [String])
+parseEqAOrLeOrBoolOrPar tokens = 
+    case parseAexp tokens of
+        Just (expr1, "==" : restTokens1) ->
+            case parseAexp restTokens1 of
+                Just (expr2, restTokens2) ->
+                    Just (EqAExp expr1 expr2, restTokens2)
+                Nothing -> Nothing
+        _ -> parseLeOrBoolOrPar tokens
+
+parseNotOrEqAOrLeOrBoolOrPar :: [String] -> Maybe (Bexp, [String])
+parseNotOrEqAOrLeOrBoolOrPar ("not" : restTokens1) = 
+    case parseEqAOrLeOrBoolOrPar restTokens1 of
+        Just (expr, restTokens2) ->
+            Just (NegExp expr, restTokens2)
+        result -> result
+parseNotOrEqAOrLeOrBoolOrPar tokens = parseEqAOrLeOrBoolOrPar tokens
+
+parseEqBOrNotOrEqAOrLeOrBoolOrPar :: [String] -> Maybe (Bexp, [String])
+parseEqBOrNotOrEqAOrLeOrBoolOrPar tokens = 
+    case parseNotOrEqAOrLeOrBoolOrPar tokens of
+        Just (expr, restTokens) -> parseAcc expr restTokens
+        _ -> Nothing
+  where
+    parseAcc acc ("=" : restTokens) =
+        case parseNotOrEqAOrLeOrBoolOrPar restTokens of
+            Just (expr, restTokens1) -> parseAcc (EqBExp acc expr) restTokens1
+            Nothing -> Nothing
+    parseAcc acc restTokens = Just (acc, restTokens)
+
+parseAndOrEqBOrNotOrEqAOrLeOrBoolOrPar :: [String] -> Maybe (Bexp, [String])
+parseAndOrEqBOrNotOrEqAOrLeOrBoolOrPar tokens = 
+    case parseEqBOrNotOrEqAOrLeOrBoolOrPar tokens of
+        Just (expr, restTokens) -> parseAcc expr restTokens
+        _ -> Nothing
+  where
+    parseAcc acc ("and" : restTokens) =
+        case parseEqBOrNotOrEqAOrLeOrBoolOrPar restTokens of
+            Just (expr, restTokens1) -> parseAcc (AndExp acc expr) restTokens1
+            Nothing -> Nothing
+    parseAcc acc restTokens = Just (acc, restTokens)
+
+
+parseBexp :: [String] -> Maybe(Bexp, [String])
+parseBexp tokens =
+    case parseAndOrEqBOrNotOrEqAOrLeOrBoolOrPar tokens of
+        Just (expr, restTokens) -> Just (expr, restTokens)
+        _ -> Nothing
+
+
+-- Parsing for statements
+parseAss :: [String] -> Maybe (Stm, [String])
+parseAss (var : ":=" : rest) = 
+    case parseAexp rest of
+        Just (expr, restTokens) -> Just (AssignStm var expr, restTokens)
+        _ -> Nothing
+parseAss _ = Nothing
+
+parseSeq :: [String] -> Maybe (Stm, [String])
+parseSeq ("(" : restTokens1) =
+    case parseStm restTokens1 of
+        Just (stm1, restTokens2) -> 
+            case parseStm restTokens2 of
+                Just (stm2, ")" : restTokens3) -> Just (SeqStm stm1 stm2, restTokens3)
+                _ -> Nothing
+        _ -> Nothing
+parseSeq _ = Nothing
+
+parseIf :: [String] -> Maybe (Stm, [String])
+parseIf ("if" : rest) =
+    case parseBexp rest of
+        Just (bexp, "then" : restTokens1) ->
+            case parseStm restTokens1 of
+                Just (stm1, "else" : restTokens2) ->
+                    case parseAss restTokens2 of
+                        Just (ass, ";" : restTokens3) -> Just (IfStm bexp stm1 ass, restTokens3)
+                        _ -> case parseStm restTokens2 of
+                                Just (stm2, ";" : restTokens3) -> Just (IfStm bexp stm1 stm2, restTokens3)
+                                _ -> Nothing
+                _ -> Nothing
+parseIf _ = Nothing
+
+parseWhile :: [String] -> Maybe (Stm, [String])
+parseWhile ("while" : rest) =
+    case parseBexp rest of
+        Just (bexp, "do" : restTokens1) -> 
+            case parseAss restTokens1 of
+                Just (ass, ";" : restTokens2) -> Just (WhileStm bexp ass, restTokens2)
+                _ -> case parseStm restTokens1 of
+                        Just (stmt, ";" : restTokens2) -> Just (WhileStm bexp stmt, restTokens2)
+                        _ -> Nothing
+        _ -> Nothing
+parseWhile _ = Nothing
+
+parseStm :: [String] -> Maybe (Stm, [String])
+parseStm tokens =
+    case parseAss tokens of
+        Just (stmt, ";" : restTokens) -> Just (stmt, restTokens)
+        _ -> case parseSeq tokens of
+            Just (stmt, restTokens) -> Just (stmt, restTokens)
+            _ -> case parseIf tokens of
+                Just (stmt, restTokens) -> Just (stmt, restTokens)
+                _ -> case parseWhile tokens of
+                    Just (stmt, restTokens) -> Just (stmt, restTokens)
+                    _ -> Nothing
+
+
+-- General Parsing
+buildData :: [String] -> Program
+buildData [] = []
+buildData tokens =
+    case parseStm tokens of
+        Just (stmt, restTokens) -> stmt : buildData restTokens
+        _ -> error "Invalid tokens"
+
+parse :: String -> Program
+parse = buildData . lexer
+
+
+
+
+{-
 -- To help you test your parser
 testParser :: String -> (String, String)
 testParser programCode = (stack2Str stack, store2Str store)
   where (_,stack,store) = run(compile (parse programCode), createEmptyStack, createEmptyStore)
+-}
 
 -- Examples:
 -- testParser "x := 5; x := x - 1;" == ("","x=4")
