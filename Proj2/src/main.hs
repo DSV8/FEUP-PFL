@@ -157,8 +157,9 @@ lexer (c : cs)
 parseNumVar :: [String] -> Maybe (Aexp, [String])
 parseNumVar (t : tsRest)
     | all isDigit t    = Just (NumConst (read t), tsRest)
-    | isLower (head t) = Just (VarExp t, tsRest)
+    | not (null t) && isLower (head t) = Just (VarExp t, tsRest)
 parseNumVar ts = Nothing
+
 
 parseNumVarParentheses :: [String] -> Maybe (Aexp, [String])
 parseNumVarParentheses ("(" : tsRest1)
@@ -169,20 +170,31 @@ parseNumVarParentheses ("(" : tsRest1)
         Nothing -> Nothing
 parseNumVarParentheses ts = parseNumVar ts
 
-parseNumVarParenthesesSumSubProd :: [String] -> Maybe (Aexp, [String])
-parseNumVarParenthesesSumSubProd ts = 
+parseNumVarParenthesesProd :: [String] -> Maybe (Aexp, [String])
+parseNumVarParenthesesProd ts = 
     case parseNumVarParentheses ts of
         Just (exp, tsRest) -> parseAcc exp tsRest
         Nothing -> Nothing
   where
-    parseAcc acc (op : tsRest) | op `elem` ["+", "-", "*"] =
+    parseAcc acc ("*" : tsRest) =
         case parseNumVarParentheses tsRest of
-            Just (exp, tsRest1) ->
-                case op of
-                    "+" -> parseAcc (AddExp acc exp) tsRest1
-                    "-" -> parseAcc (SubExp acc exp) tsRest1
-                    "*" -> parseAcc (MultExp acc exp) tsRest1
-                    _   -> Nothing
+            Just (exp, tsRest1) -> parseAcc (MultExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc tsRest = Just (acc, tsRest)
+
+parseNumVarParenthesesSumSubProd :: [String] -> Maybe (Aexp, [String])
+parseNumVarParenthesesSumSubProd ts = 
+    case parseNumVarParenthesesProd ts of
+        Just (exp, tsRest) -> parseAcc exp tsRest
+        Nothing -> Nothing
+  where
+    parseAcc acc ("+" : tsRest) =
+        case parseNumVarParenthesesProd tsRest of
+            Just (exp, tsRest1) -> parseAcc (AddExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc ("-" : tsRest) =
+        case parseNumVarParenthesesProd tsRest of
+            Just (exp, tsRest1) -> parseAcc (SubExp acc exp) tsRest1
             Nothing -> Nothing
     parseAcc acc tsRest = Just (acc, tsRest)
 
@@ -328,12 +340,13 @@ buildData ts =
 parse :: String -> Program
 parse = buildData . lexer
 
-{-
--- To help you test your parser
 testParser :: String -> (String, String)
-testParser programCode = (stack2Str stack, store2Str store)
-  where (_,stack,store) = run(compile (parse programCode), createEmptyStack, createEmptyStore)
--}
+testParser programCode = testParserRecursive (compile (parse programCode)) createEmptyStack createEmptyState
+  where
+    testParserRecursive [] stack state = (stack2Str stack, state2Str state)
+    testParserRecursive code stack state = testParserRecursive newCode newStack newState
+      where
+        (newCode, newStack, newState) = run (code, stack, state)
 
 -- Examples:
 -- testParser "x := 5; x := x - 1;" == ("","x=4")
