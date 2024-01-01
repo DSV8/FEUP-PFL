@@ -211,7 +211,7 @@ lexer (c : cs)
     case cs of
       ('=' : rest) -> [c, '='] : lexer rest
       _ -> [c] : lexer cs
-  | otherwise = error $ "Invalid character: " ++ [c]
+  | otherwise = error ([c] ++ " is not valid a character")
 ```
 
 It's easier to demonstrate what the function does with an input. When running `lexer` with the string `"if (not True and 2 <= 5 = 3 == 4) then x :=1; else y := 2;"` the result will be:
@@ -225,3 +225,71 @@ It's easier to demonstrate what the function does with an input. When running `l
 
 Therefore, the function will separate all words, digits and symbols, except if 2 symbols together exist, like `<=`, for example.
 
+```hs
+buildData :: [String] -> Program
+buildData [] = []
+buildData ts =
+    case parseStm ts of
+        Just (stm, tsRest) -> stm : buildData tsRest
+        _ -> error "Token is not valid"
+
+parse :: String -> Program
+parse = buildData . lexer
+```
+
+We start by calling `buildData` that receives the list returned by `lexer`. We send it directly to `parseStm`:
+
+```hs
+parseStm :: [String] -> Maybe (Stm, [String])
+parseStm ts =
+    case parseAssign ts of
+        Just (stm, ";" : tsRest) -> Just (stm, tsRest)
+        _ -> case parseSeq ts of
+            Just (stm, tsRest) -> Just (stm, tsRest)
+            _ -> case parseIf ts of
+                Just (stm, tsRest) -> Just (stm, tsRest)
+                _ -> case parseWhile ts of
+                    Just (stm, tsRest) -> Just (stm, tsRest)
+                    _ -> Nothing
+```
+
+The function will check which type of statement comes in the list, first checking if it is an assignment, then a sequence and so on.
+
+```hs
+parseAssign :: [String] -> Maybe (Stm, [String])
+parseAssign (var : ":=" : rest) = 
+    case parseAexp rest of
+        Just (exp, tsRest) -> Just (AssignStm var exp, tsRest)
+        _ -> Nothing
+parseAssign _ = Nothing
+```
+
+`parseAssign` will check if there is an assignment symbol after the initial variable. If it is, we will run the `parseAexp` function. If not, we go back to `parseStm` and try `parseSeq`.
+
+```hs
+parseAexp :: [String] -> Maybe(Aexp, [String])
+parseAexp ts =
+    case parseNumVarParenthesesSumSubProd ts of
+        Just (exp, tsRest) -> Just (exp, tsRest)
+        _ -> Nothing
+
+parseNumVarParenthesesSumSubProd :: [String] -> Maybe (Aexp, [String])
+parseNumVarParenthesesSumSubProd ts = 
+    case parseNumVarParenthesesProd ts of
+        Just (exp, tsRest) -> parseAcc exp tsRest
+        Nothing -> Nothing
+  where
+    parseAcc acc ("+" : tsRest) =
+        case parseNumVarParenthesesProd tsRest of
+            Just (exp, tsRest1) -> parseAcc (AddExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc ("-" : tsRest) =
+        case parseNumVarParenthesesProd tsRest of
+            Just (exp, tsRest1) -> parseAcc (SubExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc tsRest = Just (acc, tsRest)
+
+
+```
+
+That string will run through all these functions. 

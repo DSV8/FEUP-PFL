@@ -171,15 +171,19 @@ parseNumVarParentheses ("(" : tsRest1)
         Nothing -> Nothing
 parseNumVarParentheses ts = parseNumVar ts
 
-parseNumVarParenthesesProd :: [String] -> Maybe (Aexp, [String])
-parseNumVarParenthesesProd ts = 
-    case parseNumVarParentheses ts of
+parseNumVarParenthesesSumSubProd :: [String] -> Maybe (Aexp, [String])
+parseNumVarParenthesesSumSubProd ts = 
+    case parseNumVarParenthesesProd ts of
         Just (exp, tsRest) -> parseAcc exp tsRest
         Nothing -> Nothing
   where
-    parseAcc acc ("*" : tsRest) =
-        case parseNumVarParentheses tsRest of
-            Just (exp, tsRest1) -> parseAcc (MultExp acc exp) tsRest1
+    parseAcc acc ("+" : tsRest) =
+        case parseNumVarParenthesesProd tsRest of
+            Just (exp, tsRest1) -> parseAcc (AddExp acc exp) tsRest1
+            Nothing -> Nothing
+    parseAcc acc ("-" : tsRest) =
+        case parseNumVarParenthesesProd tsRest of
+            Just (exp, tsRest1) -> parseAcc (SubExp acc exp) tsRest1
             Nothing -> Nothing
     parseAcc acc tsRest = Just (acc, tsRest)
 
@@ -271,7 +275,6 @@ parseBexp ts =
         Just (exp, tsRest) -> Just (exp, tsRest)
         _ -> Nothing
 
-
 -- Parsing statements
 parseAssign :: [String] -> Maybe (Stm, [String])
 parseAssign (var : ":=" : rest) = 
@@ -327,7 +330,6 @@ parseStm ts =
                 _ -> case parseWhile ts of
                     Just (stm, tsRest) -> Just (stm, tsRest)
                     _ -> Nothing
-
 
 -- General Parsing
 buildData :: [String] -> Program
