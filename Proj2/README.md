@@ -414,7 +414,7 @@ parseIf ("if" : rest) =
             case parseStm tsRest1 of
                 Just (stm1, "else" : tsRest2) ->
                     case parseAssign tsRest2 of
-                        Just (ass, ";" : tsRest3) -> Just (IfStm bexp stm1 ass, tsRest3)
+                        Just (aexp, ";" : tsRest3) -> Just (IfStm bexp stm1 aexp, tsRest3)
                         _ -> case parseStm tsRest2 of
                                 Just (stm2, ";" : tsRest3) -> Just (IfStm bexp stm1 stm2, tsRest3)
                                 _ -> Nothing
@@ -442,7 +442,7 @@ parseWhile ("while" : rest) =
     case parseBexp rest of
         Just (bexp, "do" : tsRest1) -> 
             case parseAssign tsRest1 of
-                Just (ass, ";" : tsRest2) -> Just (WhileStm bexp ass, tsRest2)
+                Just (aexp, ";" : tsRest2) -> Just (WhileStm bexp aexp, tsRest2)
                 _ -> case parseStm tsRest1 of
                         Just (stm, ";" : tsRest2) -> Just (WhileStm bexp stm, tsRest2)
                         _ -> Nothing
